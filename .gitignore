@@ -13,6 +13,13 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Celestia Configs
+/Resources/Celestia/BotConfig.json
+/Resources/Celestia/DbCredentials.json
+
+# PaimonBot Logs
+/Logs
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
