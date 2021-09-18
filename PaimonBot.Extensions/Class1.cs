@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PaimonBot.DbAccessLayer
+namespace PaimonBot.Extensions
 {
     public class Class1
     {

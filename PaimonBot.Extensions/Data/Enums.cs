@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace PaimonBot.DbAccessLayer.Data
+namespace PaimonBot.Extensions.Data
 {
     /// <summary>
     /// Traveler's Realm Trust Rank

@@ -1,8 +1,8 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using PaimonBot.DbAccessLayer.Data;
+using PaimonBot.Extensions.Data;
 
-namespace PaimonBot.DataModels
+namespace PaimonBot.Extensions.DataModels
 {
     public class Traveler
     {
