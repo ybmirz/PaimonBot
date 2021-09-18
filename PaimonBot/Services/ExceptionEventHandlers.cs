@@ -24,22 +24,22 @@ namespace PaimonBot.Services
             switch (e.Exception)
             {
                 case CommandNotFoundException:
-                    await PaimonServices.SendEmbedAsync(e.Context, "Command Not Found", e.Exception.Message, ResponseType.Missing)
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Command Not Found", e.Exception.Message, ResponseType.Missing)
                         .ConfigureAwait(false);
                     break;
                 case InvalidOperationException:
-                    await PaimonServices.SendEmbedAsync(e.Context, "Invalid Operation Exception", e.Exception.Message + $"| Please contact developer through {SharedData.prefixes[0]}contact dev", ResponseType.Warning)
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Invalid Operation Exception", e.Exception.Message + $"| Please contact developer through {SharedData.prefixes[0]}contact dev", ResponseType.Warning)
                         .ConfigureAwait(false);
                     break;
                 case ArgumentNullException:
                 case ArgumentException:
-                    await PaimonServices.SendEmbedAsync(e.Context,
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Argument Exception",
                         $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {e.Command?.QualifiedName}`",
                         ResponseType.Warning).ConfigureAwait(false);
                     break;
                 case UnauthorizedException:
-                    await PaimonServices.SendEmbedAsync(e.Context,
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Unauthorized Exception",
                         $"One of us does not have the required permissions. Please contact developer through {SharedData.prefixes[0]}contact dev.",
                         ResponseType.Warning).ConfigureAwait(false);                    
@@ -50,31 +50,32 @@ namespace PaimonBot.Services
                         switch (check)
                         {
                             case RequirePermissionsAttribute perms:
-                                await PaimonServices.SendEmbedAsync(e.Context, title,
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"One of us does not have the following required permissions: ({perms.Permissions.ToPermissionString()})",
-                                    ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(6),ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireUserPermissionsAttribute perms:
-                                await PaimonServices.SendEmbedAsync(e.Context, title,
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"You do not have the following sufficient permissions: ({perms.Permissions.ToPermissionString()})",
                                     ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireBotPermissionsAttribute perms:
-                                await PaimonServices.SendEmbedAsync(e.Context, title,
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"I do not have the following sufficient permissions: ({perms.Permissions.ToPermissionString()})",
                                     ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireNsfwAttribute:
-                                await PaimonServices.SendEmbedAsync(e.Context, title,
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"This command is only bound to NSFW Channels",
                                     ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case CooldownAttribute:
-                                    await PaimonServices.SendEmbedAsync(e.Context, title, $"Calm down there mate! Please wait a few more seconds.", ResponseType.Warning)
+                                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
+                                        title, $"Calm down there mate! Please wait a few more seconds.", ResponseType.Warning)
                                     .ConfigureAwait(false);
                                 break;
                             default:
-                                await PaimonServices.SendEmbedAsync(e.Context, title,
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"Unknown Check triggered. Please contact the developer by `{SharedData.prefixes[0]}contact dev`",
                                     ResponseType.Error).ConfigureAwait(false);
                                 break;

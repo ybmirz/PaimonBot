@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PaimonBot.Services
+namespace PaimonBot.Services.HelpFormatter
 {
     public sealed class DefaultHelpFormatter : BaseHelpFormatter
     {

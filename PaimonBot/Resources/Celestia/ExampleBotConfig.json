@@ -1,0 +1,6 @@
+{
+  "BotName": "<YOUR BOT's NAME HERE>",
+  "Token": "<YOUR BOT TOKEN HERE>",
+  "LogoURL": "<CLOUD-HOSTED IMAGE URL>",
+  "Prefixes": [ "p~" ]
+}
