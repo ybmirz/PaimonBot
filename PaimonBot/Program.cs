@@ -10,6 +10,8 @@ using Serilog;
 using PaimonBot.Models;
 using PaimonBot.Services;
 using Microsoft.AspNetCore.Builder;
+using PaimonBot.Extensions;
+using PaimonBot.Extensions.DataModels;
 
 namespace PaimonBot
 {
@@ -18,10 +20,11 @@ namespace PaimonBot
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .MinimumLevel.Debug()
                 .WriteTo.File("./Logs/Log.txt", shared: true, 
                     rollingInterval: RollingInterval.Hour, retainedFileCountLimit: null,
-                    flushToDiskInterval: TimeSpan.FromMinutes(1), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
-                .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+                    flushToDiskInterval: TimeSpan.FromMinutes(1), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)                
                 .CreateLogger();
             Log.Information("Thank you for starting PaimonBot v1.0! " +
                 "Starting Host application...");
@@ -75,10 +78,9 @@ namespace PaimonBot
                 dbJson = sr.ReadToEnd();
             }
             var dbCred = JsonConvert.DeserializeObject<DbConfigModel>(dbJson);
-            var dbClient = new MongoClient($"mongodb://{dbCred.Username}:{dbCred.Password}@{dbCred.Host}");
-            SharedData.PaimonDb = dbClient.GetDatabase(dbCred.database);
+            SharedData.PaimonDB = new PaimonDb($"mongodb://{dbCred.Username}:{dbCred.Password}@{dbCred.Host}/{dbCred.database}", dbCred.database);            
             Log.Information($"[SUCCESS] Connected to PaimonDb! " +
-                $"Database: \"{SharedData.PaimonDb.DatabaseNamespace.DatabaseName}\" on \"{SharedData.PaimonDb.Client.Settings.Server}\"");
+                $"Database: \"{SharedData.PaimonDB.GetDBInstance().DatabaseNamespace.DatabaseName}\" on \"{SharedData.PaimonDB.GetDBInstance().Client.Settings.Server}\"");
             // ^ Ensuring that database is connected properly
 
             // Creating PaimonBot and running it as a service

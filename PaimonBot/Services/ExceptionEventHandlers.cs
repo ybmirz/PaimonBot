@@ -21,7 +21,7 @@ namespace PaimonBot.Services
         }
         public static async Task EventHandlers_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
-            int secondsDelay = 0;
+            int secondsDelay = 6;
             switch (e.Exception)
             {
                 case CommandNotFoundException x:

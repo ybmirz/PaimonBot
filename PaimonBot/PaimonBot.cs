@@ -1,6 +1,9 @@
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using PaimonBot.Commands;
 using PaimonBot.Models;
@@ -61,6 +64,21 @@ namespace PaimonBot
                 Services = services
             };
             _Commands = await _Client.UseCommandsNextAsync(commandsConfig);
+
+            var interactivityConfig = new InteractivityConfiguration
+            {
+                PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround,
+                PaginationDeletion = DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteEmojis,
+                Timeout = TimeSpan.FromMinutes(1),
+                PaginationButtons = new PaginationButtons() {
+                    Left = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_left","",emoji: new DiscordComponentEmoji("◀")),
+                    Right = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_right","",emoji: new DiscordComponentEmoji("▶")),
+                    Stop = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_stop","",emoji: new DiscordComponentEmoji("🛑"))                    
+                },
+                ButtonBehavior = DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior.DeleteButtons,                
+            };
+            await _Client.UseInteractivityAsync(interactivityConfig);
+
             // Start the bot
             await StartAsync();
             // Disconnect the bot when closing program
@@ -80,8 +98,9 @@ namespace PaimonBot
             IReadOnlyDictionary<int, CommandsNextExtension> cnext = await _Client.GetCommandsNextAsync();
             foreach (var cmdShard in cnext.Values)
             {
+                cmdShard.RegisterCommands<AccountCommands>();
                 cmdShard.RegisterCommands<DevCommands>();
-                cmdShard.SetHelpFormatter<DefaultHelpFormatter>();
+                cmdShard.SetHelpFormatter<DefaultHelpFormatter>();               
             }
             #endregion Registering          
             t.Stop();

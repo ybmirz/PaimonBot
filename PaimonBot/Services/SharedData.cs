@@ -2,6 +2,7 @@ using DSharpPlus.Entities;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using PaimonBot.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -10,13 +11,13 @@ namespace PaimonBot.Services
     /// <summary>
     /// A class consisting of basically static global/shared variables between classes.
     /// </summary>
-    public class SharedData
+    public static class SharedData
     {
         #region SharedPaimonData
         public static List<string> prefixes; // Initialized in Bot class
         public static string logoURL = "https://cdn.discordapp.com/embed/avatars/0.png"; // Default logo URL
         public static string botName; // Initialized in Bot class
-        public static IMongoDatabase PaimonDb;
+        public static PaimonDb PaimonDB;
         public static DateTime startTime;
         public static DiscordColor defaultColour = new DiscordColor("#2D325A"); // Paimon.moe Colour
         #endregion SharedPaimonData

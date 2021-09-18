@@ -1,4 +1,6 @@
+using DSharpPlus.CommandsNext;
 using System;
+using System.Collections.Generic;
 
 namespace PaimonBot.Services.HelpFormatter
 {

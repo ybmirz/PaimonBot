@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using PaimonBot.Extensions.Data;
+using System;
 
 namespace PaimonBot.Extensions.DataModels
 {
@@ -10,7 +11,7 @@ namespace PaimonBot.Extensions.DataModels
         /// BSON Id to Identify the Unique Document
         /// </summary>
         [BsonId]
-        public ObjectId Id { get; set; }
+        public BsonObjectId Id { get; set; }
 
         #region TravelerData
         /// <summary>
@@ -40,14 +41,23 @@ namespace PaimonBot.Extensions.DataModels
         #endregion ResinData
 
         #region RealmCurrencyData
-        /*
-         * Do not know whether to implement this or not yet, looking into it, in the near future
+        /// <summary>
+        /// Traveler's Current Realm Currency
+        /// </summary>
+        [BsonElement("RealmCurrency")]
         public int RealmCurrency { get; set; } = 0;
+        /// <summary>
+        /// When the Traveler set their Currency
+        /// </summary>
+        [BsonElement("RealmCurrencyUpdated")]
         public BsonDateTime CurrencyUpdated { get; set; } = null;
-        */
+
         #endregion RealmCurrencyData
 
         #region TeyvatData
+        [BsonElement("ParaGadgetUsed")]
+        public BsonDateTime ParaGadget { get; set; } = null;
+
         /// <summary>
         /// Traveler's Realm Trust Rank
         /// </summary>

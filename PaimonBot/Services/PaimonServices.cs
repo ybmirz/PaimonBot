@@ -53,6 +53,24 @@ namespace PaimonBot.Services
         }
 
         /// <summary>
+        /// Context Respond Async and delete after Delay
+        /// </summary>
+        /// <param name="ctx">CommandContext to respond to</param>
+        /// <param name="message">Message to send as response</param>
+        /// <param name="delay">Delay to wait before deleting the message [Zero will not delete the message]]</param>
+        /// <returns></returns>
+        public static async Task SendRespondAsync(CommandContext ctx,
+            string message, TimeSpan delay)
+        {
+            var msg = await ctx.RespondAsync(message)
+                .ConfigureAwait(false);
+            if (delay != TimeSpan.Zero)
+            {
+                await Task.Delay(delay);
+                await msg.DeleteAsync().ConfigureAwait(false);
+            }
+        }
+        /// <summary>
         /// Default EmbedBuilder with DefaultColor
         /// </summary>
         /// <param name="title"></param>
