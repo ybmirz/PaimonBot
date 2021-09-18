@@ -46,4 +46,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Commands\InfoCommands\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaimonBot.DbAccessLayer\PaimonBot.DbAccessLayer.csproj" />
+  </ItemGroup>
+
 </Project>

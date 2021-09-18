@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaimonBot", "PaimonBot\PaimonBot.csproj", "{2433B4D2-61A9-4ED7-8A5D-E391052F4D23}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaimonBot.DbAccessLayer", "PaimonBot.DbAccessLayer\PaimonBot.DbAccessLayer.csproj", "{2B4E5751-8D36-4548-829C-A8DC2BBAB4FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2433B4D2-61A9-4ED7-8A5D-E391052F4D23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2433B4D2-61A9-4ED7-8A5D-E391052F4D23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2433B4D2-61A9-4ED7-8A5D-E391052F4D23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B4E5751-8D36-4548-829C-A8DC2BBAB4FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B4E5751-8D36-4548-829C-A8DC2BBAB4FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B4E5751-8D36-4548-829C-A8DC2BBAB4FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B4E5751-8D36-4548-829C-A8DC2BBAB4FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

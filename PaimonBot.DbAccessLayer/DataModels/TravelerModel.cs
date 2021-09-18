@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using PaimonBot.Services;
+using PaimonBot.DbAccessLayer.Data;
 
 namespace PaimonBot.DataModels
 {
