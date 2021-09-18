@@ -51,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PaimonBot.DbAccessLayer\PaimonBot.DbAccessLayer.csproj" />
+    <ProjectReference Include="..\PaimonBot.Extensions\PaimonBot.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using PaimonBot.Services;
+using PaimonBot.Services.HelpFormatter;
 using System;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace PaimonBot.Commands
     [Group("test")]
     [RequireOwner]
     [Description("Dev-built commands to test and develop PaimonBot")]
+    [Category(CategoryName.Misc)]
     [Hidden]
     public class DevCommands : BaseCommandModule
     {
