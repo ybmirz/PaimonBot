@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using PaimonBot.Commands;
 using PaimonBot.Models;
 using PaimonBot.Services;
+using PaimonBot.Services.HelpFormatter;
 using Serilog;
 using System;
 using System.Collections.Generic;

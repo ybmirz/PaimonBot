@@ -21,65 +21,84 @@ namespace PaimonBot.Services
         }
         public static async Task EventHandlers_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
+            int secondsDelay = 0;
             switch (e.Exception)
             {
-                case CommandNotFoundException:
-                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Command Not Found", e.Exception.Message, ResponseType.Missing)
-                        .ConfigureAwait(false);
+                case CommandNotFoundException x:
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Command Not Found", e.Exception.Message,
+                        TimeSpan.FromSeconds(secondsDelay), ResponseType.Missing)
+                        .ConfigureAwait(false);                   
+                    Log.Warning("{User} tried to look for a command that doesn't exist! Command: '{CommandName}' | Message: '{Message}'",
+                        e.Context.User, x.CommandName, e.Context.Message.Content);
                     break;
                 case InvalidOperationException:
-                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Invalid Operation Exception", e.Exception.Message + $"| Please contact developer through {SharedData.prefixes[0]}contact dev", ResponseType.Warning)
+                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Invalid Operation Exception:", e.Exception.Message + $"| Please contact developer through {SharedData.prefixes[0]}contact dev",
+                        TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning)
                         .ConfigureAwait(false);
+                    Log.Error("An Invalid Operation Exception was thrown: {ExceptionType} {ExceptionMsg} {StackTrace}",
+                        e.Exception.GetType(), e.Exception.Message, e.Exception.StackTrace);
                     break;
-                case ArgumentNullException:
+                case ArgumentNullException:                   
                 case ArgumentException:
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Argument Exception",
                         $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {e.Command?.QualifiedName}`",
-                        ResponseType.Warning).ConfigureAwait(false);
+                        TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning).ConfigureAwait(false);
+                    Log.Warning("{User} had Invalid or Missing Arguments for Command {CommandName} in {Channel} ({Guild}) | {StackTrace}",
+                        e.Context.User, e.Command?.QualifiedName, e.Context.Channel, e.Context.Guild, e.Exception.StackTrace);
                     break;
                 case UnauthorizedException:
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Unauthorized Exception",
-                        $"One of us does not have the required permissions. Please contact developer through {SharedData.prefixes[0]}contact dev.",
-                        ResponseType.Warning).ConfigureAwait(false);                    
+                        $"One of us does not have the required permissions to process that command. Please contact developer through {SharedData.prefixes[0]}contact dev.",
+                        TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning).ConfigureAwait(false);
+                    Log.Warning("{User} started a command/process but one of us is not authorized.{Command} {Guild} {StackTrace}"
+                        , e.Context.User, e.Command?.QualifiedName, e.Context.Guild, e.Exception.StackTrace);
                     break;
                 case ChecksFailedException cfe: //attribute check from the cmd failed
-                    string title = "Check Failed Exception";
-                    foreach (var check in cfe.FailedChecks)
+                    string title = "Check Failed Error";
+                    foreach (var check in cfe.FailedChecks)                    
                         switch (check)
                         {
                             case RequirePermissionsAttribute perms:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"One of us does not have the following required permissions: ({perms.Permissions.ToPermissionString()})",
-                                    TimeSpan.FromSeconds(6),ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireUserPermissionsAttribute perms:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"You do not have the following sufficient permissions: ({perms.Permissions.ToPermissionString()})",
-                                    ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireBotPermissionsAttribute perms:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"I do not have the following sufficient permissions: ({perms.Permissions.ToPermissionString()})",
-                                    ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
                             case RequireNsfwAttribute:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"This command is only bound to NSFW Channels",
-                                    ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
-                            case CooldownAttribute:
-                                    await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
-                                        title, $"Calm down there mate! Please wait a few more seconds.", ResponseType.Warning)
-                                    .ConfigureAwait(false);
+                            case CooldownAttribute x:
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
+                                    title, $"Calm down there mate! Please wait a few more seconds. This command is still in cooldown.",
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning)
+                                .ConfigureAwait(false);
+                                break;
+                            case RequireOwnerAttribute:
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
+                                    title, $"This command is only applicable to my Owner.", TimeSpan.FromSeconds(secondsDelay),
+                                    ResponseType.Warning).ConfigureAwait(false);
                                 break;
                             default:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"Unknown Check triggered. Please contact the developer by `{SharedData.prefixes[0]}contact dev`",
-                                    ResponseType.Error).ConfigureAwait(false);
+                                    TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
                         }
+                    Log.Warning("{User} has triggered the following Check Failed Exception(s): {Exceptions} in {Guild}",
+                            e.Context.User, string.Join(",",cfe.FailedChecks), e.Context.Guild);
                     break;
             }
         }

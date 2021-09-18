@@ -41,12 +41,10 @@ namespace PaimonBot.Services
                 _ => SharedData.defaultColour
             };
 
-            var embed = new DiscordEmbedBuilder()
-                .WithTitle(title + " " + titleEmote)
-                .WithDescription(desc)
-                .WithFooter($"{SharedData.prefixes[0]}help for more Info", SharedData.logoURL)
-                .WithTimestamp(DateTime.Now)
-                .WithColor(ErrorColour);
+
+            var embed = CreateEmbed(title + " " + titleEmote,desc, ErrorColour);
+            embed.WithFooter($"{SharedData.prefixes[0]}help for more Info", SharedData.logoURL)
+                .WithTimestamp(DateTime.Now);
 
             var msg = await channel.SendMessageAsync(embed: embed)
                 .ConfigureAwait(false);
