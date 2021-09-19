@@ -39,16 +39,11 @@ namespace PaimonBot.Services.HelpFormatter
 
             foreach (var overload in cmd.Overloads)
             {
-
                 if (cmd.Parent is CommandGroup)
                 {
-                    sb.Append($"{SharedData.prefixes[0]}{cmd.Parent.QualifiedName} {cmd.Name}");
-                }
-                else
-                {
-                    sb.Append($"{SharedData.prefixes[0]}{cmd.Name}"); // default just a name\    
-                }
-
+                    sb.Append($"{SharedData.prefixes[0]}{cmd.Parent.Name} {cmd.Name}");
+                } else 
+                    sb.Append($"{SharedData.prefixes[0]}{cmd.Name}"); // default just a name
                 if (overload.Arguments.Count >= 1)
                 {
                     sb.Append(" " + string.Join(" ", overload.Arguments.Select(xarg => xarg.IsOptional ? $"<{xarg.Name}>" : $"[{xarg.Name}]")));
@@ -119,14 +114,11 @@ namespace PaimonBot.Services.HelpFormatter
                         _output.WithAuthor("Command Help Page", null, SharedData.logoURL);
                         _output.ClearFields();
                         StringBuilder sb = new StringBuilder();
-                        foreach (var overload in cmd.Overloads)
-                        {
                             sb.Append($"{SharedData.prefixes[0]}{cmd.Parent.Name} \n" + string.Join("|", cmd.Parent.Children.Select(c => c.Name)) + "\n"); // default just a name
-                        }
                         _output.AddField(Formatter.Bold("# Usage"), Formatter.BlockCode(sb.ToString()));
                         if (cmd.Aliases?.Any() ?? false) //needs changing
                             _output.AddField("# Aliases", Formatter.BlockCode("<Aliases: " + string.Join(" ", cmd.Aliases.Select(Formatter.InlineCode)) + ">", "xml"));
-                        _output.AddField(Formatter.Bold("# Description"), Formatter.BlockCode("<Description: " + cmd.Description + ">", "xml"));
+                        _output.AddField(Formatter.Bold("# Description"), Formatter.BlockCode("<Description: " + (cmd.Parent.Description ?? cmd.Description ) + ">", "xml"));
                     }
                 }
             }
