@@ -24,6 +24,15 @@ namespace PaimonBot.Services
     }
 
     /// <summary>
+    /// Static class filled with Emoji strings for the bot to use.
+    /// </summary>
+    public static class Emojis
+    {
+        public static string ResinEmote = "<:resin:889059442061082665>";
+        public static string CurrencyEmote = "<:realm_currency:889065864924639252>";
+    }
+
+    /// <summary>
     /// CommandGrouping enum to beautify Help
     /// </summary>
     public enum CategoryName

@@ -68,7 +68,7 @@ namespace PaimonBot.Extensions.DataModels
         /// Traveler's Genshin Server
         /// </summary>
         [BsonElement("TeyvatServer")]
-        public TeyvatServer GenshinServer { get; set; }
+        public TeyvatServer GenshinServer { get; set; } = TeyvatServer.NorthAmerica;
 
         /// <summary>
         /// Traveler's World Level
