@@ -39,7 +39,16 @@ namespace PaimonBot.Services.HelpFormatter
 
             foreach (var overload in cmd.Overloads)
             {
-                sb.Append($"{SharedData.prefixes[0]}{cmd.Name}"); // default just a name
+
+                if (cmd.Parent is CommandGroup)
+                {
+                    sb.Append($"{SharedData.prefixes[0]}{cmd.Parent.QualifiedName} {cmd.Name}");
+                }
+                else
+                {
+                    sb.Append($"{SharedData.prefixes[0]}{cmd.Name}"); // default just a name\    
+                }
+
                 if (overload.Arguments.Count >= 1)
                 {
                     sb.Append(" " + string.Join(" ", overload.Arguments.Select(xarg => xarg.IsOptional ? $"<{xarg.Name}>" : $"[{xarg.Name}]")));
