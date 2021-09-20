@@ -19,11 +19,6 @@ namespace PaimonBot.Extensions.DataModels
         /// </summary>
         [BsonElement("DiscordID")]
         public ulong DiscordID { get; set; }
-        /// <summary>
-        /// The Discord Guild ID where the Traveler first initialized their data
-        /// </summary>
-        [BsonElement("GuildID")]
-        public ulong GuildID { get; set; }
         #endregion TravelerData
 
         #region ResinData
