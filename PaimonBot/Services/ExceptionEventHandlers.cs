@@ -39,10 +39,10 @@ namespace PaimonBot.Services
                         e.Exception.GetType(), e.Exception.Message, e.Exception.StackTrace);
                     break;
                 case ArgumentNullException:                   
-                case ArgumentException:
+                case ArgumentException x:                   
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Argument Exception",
-                        $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {e.Command?.QualifiedName}`",
+                        $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {(e.Command.Parent is CommandGroup ? e.Command.Parent.Name + " " + e.Command.QualifiedName : e.Command?.QualifiedName)}`",
                         TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning).ConfigureAwait(false);
                     Log.Warning("{User} had Invalid or Missing Arguments for Command {CommandName} in {Channel} ({Guild}) | {StackTrace}",
                         e.Context.User, e.Command?.QualifiedName, e.Context.Channel, e.Context.Guild, e.Exception.StackTrace);
@@ -91,6 +91,11 @@ namespace PaimonBot.Services
                                     title, $"This command is only applicable to my Owner.", TimeSpan.FromSeconds(secondsDelay),
                                     ResponseType.Warning).ConfigureAwait(false);
                                 break;
+                            case RequireDirectMessageAttribute:
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title, "This command can only be done through our DMs. " +
+                                    "Paimon's waiting for you! teehee~~",TimeSpan.FromSeconds(secondsDelay),
+                                    ResponseType.Warning).ConfigureAwait(false);
+                                break;
                             default:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
                                     $"Unknown Check triggered. Please contact the developer by `{SharedData.prefixes[0]}contact dev`",
@@ -103,6 +108,7 @@ namespace PaimonBot.Services
             }
         }
         #endregion CommandEventHandlers
+
 
         #region ClientEventHandlers
         public static Task _Client_GuildCreated(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs e)
@@ -120,7 +126,7 @@ namespace PaimonBot.Services
         public static Task _Client_GuildAvailable(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs e)
         {
             Log.Information($"PaimonBot sees a traveler's guild! Name:{e.Guild.Name} ({e.Guild.Id})");
-            return Task.CompletedTask;
+            return Task.CompletedTask;          
         }
 
         public static Task _Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
