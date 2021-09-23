@@ -18,6 +18,7 @@ namespace PaimonBot.Extensions
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             await coll.InsertOneAsync(input);
+            TravelerAdded?.Invoke(this, EventArgs.Empty);
         }
 
         public Traveler GetTravelerBy<T>(string FieldName,T FieldValue)
@@ -82,5 +83,7 @@ namespace PaimonBot.Extensions
         {
             return db;
         }
+
+        public event EventHandler TravelerAdded;
     }
 }

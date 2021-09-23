@@ -41,7 +41,7 @@ namespace PaimonBot
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
-                webBuilder.UseUrls(""); // Add listening ports here
+                webBuilder.UseUrls("https://localhost:5001"); // Add listening ports here
             });
     }
 

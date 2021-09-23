@@ -119,18 +119,42 @@ namespace PaimonBot
             return Task.CompletedTask;
         }
 
+        private async Task InitializeActivity()
+        {
+            int TravelersNum = (int)SharedData.PaimonDB.GetTravelersCount(); 
+            DiscordActivity act = new DiscordActivity()
+            {
+                ActivityType = ActivityType.Playing,
+                Name = $"with {TravelersNum} Travelers! | p~help"
+            };
+            await _Client.UpdateStatusAsync(act);
+            SharedData.PaimonDB.TravelerAdded += e_TravelerAdded;
+        }
+
+        async void e_TravelerAdded(object sender, EventArgs e)
+        {
+            int TravelersNum = (int)SharedData.PaimonDB.GetTravelersCount();
+            DiscordActivity act = new DiscordActivity()
+            {
+                ActivityType = ActivityType.Playing,
+                Name = $"with {TravelersNum} Travelers! | p~help"
+            };
+            await _Client.UpdateStatusAsync(act);
+        }
+
         private async Task StartAsync()
         {
             Log.Information("[INIT] Paimon is entering Teyvat!");
 
             InitializeSharedData();           
             await InitiliazeClientEventHandlers();
-            await InitializeCommandsNext();
+            await InitializeCommandsNext();           
             // await InitializeSlashCommandsAsync();            
             await ExceptionEventHandlers.SubscribeToEventsAsnc(_Client);
 
             Log.Debug("[INIT] Paimon is connecting to Teyvat (Discord)...");
             await _Client.StartAsync();
+            await InitializeActivity();
             Log.Debug("[INIT] Paimon connected to Teyvat (Discord)!");
         }
 
