@@ -1,4 +1,4 @@
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -20,6 +20,7 @@ namespace PaimonBot.Services
         public static PaimonDb PaimonDB;
         public static DateTime startTime;
         public static DiscordColor defaultColour = new DiscordColor("#2D325A"); // Paimon.moe Colour
+        public static string TimedOutString = "Oopsie, you took too long to respond, Paimon isn't that patient! (〃´∀｀) Please try again!";
         #endregion SharedPaimonData
     }
 

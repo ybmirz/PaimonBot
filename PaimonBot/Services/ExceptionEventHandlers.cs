@@ -17,7 +17,7 @@ namespace PaimonBot.Services
         #region CommandEventHandlers
         public static Task EventHandlers_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
-            if (e.Context.Channel.IsPrivate)
+            if (e.Context.Channel == null)
                 Log.Information($"Command {e.Command.Name} has been executed successfully by {e.Context.User.Id} through DMs");            
             else
                 Log.Information($"Command {e.Command.Name} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id})");
@@ -46,7 +46,7 @@ namespace PaimonBot.Services
                 case ArgumentException x:
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Argument Exception",
-                        $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {(e.Command.Parent is CommandGroup ? e.Command.Parent.Name + " " + e.Command.QualifiedName : e.Command?.QualifiedName)}`",
+                        $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {/*(e.Command.Parent is CommandGroup ? e.Command.Parent.Name + " " + e.Command.QualifiedName :*/ e.Command?.QualifiedName}`",
                         TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning).ConfigureAwait(false);
                     Log.Warning("{User} had Invalid or Missing Arguments for Command {CommandName} in {Channel} ({Guild}) | {StackTrace}",
                         e.Context.User, e.Command?.QualifiedName, e.Context.Channel, e.Context.Guild, e.Exception.StackTrace);

@@ -26,7 +26,10 @@ namespace PaimonBot.Extensions
             var filter = Builders<Traveler>.Filter.Eq(FieldName, FieldValue);
 
             if (coll.Find(filter).CountDocuments() > 0)
-                return coll.Find(filter).First();
+            {
+                var found = coll.Find(filter).First();
+                return found;
+            }
             else
                 return null;
         }
@@ -39,11 +42,40 @@ namespace PaimonBot.Extensions
             coll.InsertOne(input);
         }
 
+        public void DeleteTravelerBy<T>(string FieldName, T FieldValue)
+        {
+            var coll = db.GetCollection<Traveler>("Travelers");
+            var filter = Builders<Traveler>.Filter.Eq(FieldName, FieldValue);
+            coll.DeleteOne(filter);            
+        }
+
+        public void DeleteTraveler(Traveler input)
+        {
+            var coll = db.GetCollection<Traveler>("Travelers");
+            var filter = Builders<Traveler>.Filter.Eq("DiscordID", input.DiscordID);
+            coll.DeleteOne(filter);
+        }
+
+        public bool TravelerExists(ulong TravelerId)
+        {
+            var traveler = GetTravelerBy<ulong>("DiscordID", TravelerId);
+            if (traveler != null)
+                return true;
+            else
+                return false;
+        }
+
         public void UpdateTraveler<T>(Traveler traveler, string fieldName,T updateValue)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq("DiscordID", traveler.DiscordID);
             var update = Builders<Traveler>.Update.Set(fieldName, updateValue);
+        }
+
+        public long GetTravelersCount()
+        {
+            var coll = db.GetCollection<Traveler>("Travelers");
+            return coll.CountDocuments(new BsonDocument());
         }
 
         public IMongoDatabase GetDBInstance()
