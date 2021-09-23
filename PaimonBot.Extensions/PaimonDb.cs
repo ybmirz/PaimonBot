@@ -14,10 +14,10 @@ namespace PaimonBot.Extensions
             db = client.GetDatabase(database);
         }
 
-        public void InsertTraveler(Traveler input)
+        public async void InsertTraveler(Traveler input)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
-            coll.InsertOne(input);
+            await coll.InsertOneAsync(input);
         }
 
         public Traveler GetTravelerBy<T>(string FieldName,T FieldValue)
@@ -34,26 +34,26 @@ namespace PaimonBot.Extensions
                 return null;
         }
 
-        public void ReplaceTraveler(Traveler input)
+        public async void ReplaceTraveler(Traveler input)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq("DiscordID", input.DiscordID);
-            coll.DeleteOne(filter);
-            coll.InsertOne(input);
+            await coll.DeleteOneAsync(filter);
+            await coll.InsertOneAsync(input);
         }
 
-        public void DeleteTravelerBy<T>(string FieldName, T FieldValue)
+        public async void DeleteTravelerBy<T>(string FieldName, T FieldValue)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq(FieldName, FieldValue);
-            coll.DeleteOne(filter);            
+            await coll.DeleteOneAsync(filter);            
         }
 
-        public void DeleteTraveler(Traveler input)
+        public async void DeleteTraveler(Traveler input)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq("DiscordID", input.DiscordID);
-            coll.DeleteOne(filter);
+            await coll.DeleteOneAsync(filter);
         }
 
         public bool TravelerExists(ulong TravelerId)
