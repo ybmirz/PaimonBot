@@ -2,6 +2,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Serilog;
 using System;
@@ -16,7 +17,10 @@ namespace PaimonBot.Services
         #region CommandEventHandlers
         public static Task EventHandlers_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
-            Log.Information($"Command {e.Command.Name} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id})");
+            if (e.Context.Channel.IsPrivate)
+                Log.Information($"Command {e.Command.Name} has been executed successfully by {e.Context.User.Id} through DMs");            
+            else
+                Log.Information($"Command {e.Command.Name} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id})");
             return Task.CompletedTask;
         }
         public static async Task EventHandlers_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
@@ -27,7 +31,7 @@ namespace PaimonBot.Services
                 case CommandNotFoundException x:
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Command Not Found", e.Exception.Message,
                         TimeSpan.FromSeconds(secondsDelay), ResponseType.Missing)
-                        .ConfigureAwait(false);                   
+                        .ConfigureAwait(false);
                     Log.Warning("{User} tried to look for a command that doesn't exist! Command: '{CommandName}' | Message: '{Message}'",
                         e.Context.User, x.CommandName, e.Context.Message.Content);
                     break;
@@ -38,8 +42,8 @@ namespace PaimonBot.Services
                     Log.Error("An Invalid Operation Exception was thrown: {ExceptionType} {ExceptionMsg} {StackTrace}",
                         e.Exception.GetType(), e.Exception.Message, e.Exception.StackTrace);
                     break;
-                case ArgumentNullException:                   
-                case ArgumentException x:                   
+                case ArgumentNullException:
+                case ArgumentException x:
                     await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel,
                         "Argument Exception",
                         $"Invalid or Missing Arguments. `{SharedData.prefixes[0]}help {(e.Command.Parent is CommandGroup ? e.Command.Parent.Name + " " + e.Command.QualifiedName : e.Command?.QualifiedName)}`",
@@ -57,7 +61,7 @@ namespace PaimonBot.Services
                     break;
                 case ChecksFailedException cfe: //attribute check from the cmd failed
                     string title = "Check Failed Error";
-                    foreach (var check in cfe.FailedChecks)                    
+                    foreach (var check in cfe.FailedChecks)
                         switch (check)
                         {
                             case RequirePermissionsAttribute perms:
@@ -93,7 +97,7 @@ namespace PaimonBot.Services
                                 break;
                             case RequireDirectMessageAttribute:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title, "This command can only be done through our DMs. " +
-                                    "Paimon's waiting for you! teehee~~",TimeSpan.FromSeconds(secondsDelay),
+                                    "Paimon's waiting for you! teehee ~", TimeSpan.FromSeconds(secondsDelay),
                                     ResponseType.Warning).ConfigureAwait(false);
                                 break;
                             default:
@@ -103,7 +107,7 @@ namespace PaimonBot.Services
                                 break;
                         }
                     Log.Warning("{User} has triggered the following Check Failed Exception(s): {Exceptions} in {Guild}",
-                            e.Context.User, string.Join(",",cfe.FailedChecks), e.Context.Guild);
+                            e.Context.User, string.Join(",", cfe.FailedChecks), e.Context.Guild);
                     break;
             }
         }
@@ -126,7 +130,7 @@ namespace PaimonBot.Services
         public static Task _Client_GuildAvailable(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs e)
         {
             Log.Information($"PaimonBot sees a traveler's guild! Name:{e.Guild.Name} ({e.Guild.Id})");
-            return Task.CompletedTask;          
+            return Task.CompletedTask;
         }
 
         public static Task _Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
@@ -137,8 +141,12 @@ namespace PaimonBot.Services
         public static Task _client_SocketClosed(DiscordClient sender, DSharpPlus.EventArgs.SocketCloseEventArgs e)
         {
             if (e.CloseCode is 4014)
-                Log.Error("Missing intents! Enable them on the developer dashboard (discord.com/developers/applications/{AppId})",sender.CurrentApplication.Id);
+                Log.Error("Missing intents! Enable them on the developer dashboard (discord.com/developers/applications/{AppId})", sender.CurrentApplication.Id);
             return Task.CompletedTask;
+        }
+
+        public static async Task _Client_ComponentInteraction(DiscordClient sender, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs e)
+        {
         }
         #endregion ClientEventHandlers
 
