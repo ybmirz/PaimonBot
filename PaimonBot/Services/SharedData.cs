@@ -1,8 +1,6 @@
 ﻿using DSharpPlus.Entities;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using PaimonBot.Extensions;
+using PaimonBot.Services.ResinHelper;
 using System;
 using System.Collections.Generic;
 
@@ -19,9 +17,13 @@ namespace PaimonBot.Services
         public static string botName; // Initialized in Bot class
         public static PaimonDb PaimonDB;
         public static DateTime startTime;
-        public static DiscordColor defaultColour = new DiscordColor("#2D325A"); // Paimon.moe Colour
+        public static DiscordColor defaultColour = new DiscordColor("#6AE5F7"); // Paimon.moe Colour
         public static string TimedOutString = "Oopsie, you took too long to respond, Paimon isn't that patient! (〃´∀｀) Please try again!";
         #endregion SharedPaimonData
+
+        #region SharedResinData
+        public static List<ResinTimer> resinTimers = new List<ResinTimer>();
+        #endregion SharedResinData
     }
 
     /// <summary>

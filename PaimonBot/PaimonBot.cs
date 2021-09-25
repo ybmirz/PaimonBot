@@ -9,6 +9,7 @@ using PaimonBot.Commands;
 using PaimonBot.Models;
 using PaimonBot.Services;
 using PaimonBot.Services.HelpFormatter;
+using PaimonBot.Services.ResinHelper;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -98,6 +99,7 @@ namespace PaimonBot
             IReadOnlyDictionary<int, CommandsNextExtension> cnext = await _Client.GetCommandsNextAsync();
             foreach (var cmdShard in cnext.Values)
             {
+                cmdShard.RegisterCommands<ResinCommands>();
                 cmdShard.RegisterCommands<AccountCommands>();
                 cmdShard.RegisterCommands<DevCommands>();
                 cmdShard.SetHelpFormatter<DefaultHelpFormatter>();               
@@ -156,14 +158,31 @@ namespace PaimonBot
             await _Client.StartAsync();
             await InitializeActivity();
             Log.Debug("[INIT] Paimon connected to Teyvat (Discord)!");
+
+            // Restart all the Timers
+            var TravelerIDs = await SharedData.PaimonDB.GetTravelerIDs();
+            foreach (var id in TravelerIDs)
+            {
+                var aTimer = new ResinTimer(id);
+                aTimer.Start();
+                SharedData.resinTimers.Add(aTimer);
+            }
+            Log.Information($"Started ResinTimer for {TravelerIDs.Count} Users: {string.Join(",", TravelerIDs)}");
+
         }
 
         private async void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
+            // Disable all the Timers
+            foreach (var aTimer in SharedData.resinTimers)
+            {
+                aTimer.StopAndDispose();
+            }
+            Log.Information($"Stopped and Disposed ResinTimer for {SharedData.resinTimers.Count} Users: {string.Join(",", SharedData.resinTimers.Select(x => x._discordID))}");
             Log.Information("[SHUTDOWN] Paimon is now leaving Teyvat!");
-            Log.Debug("[SHUTDOWn] Disconnecting from Teyvat (Discord) Gateway");
+            Log.Debug("[SHUTDOWN] Disconnecting from Teyvat (Discord) Gateway");
             await _Client.StopAsync();
-            Log.Debug("[SHUTDOWN] Disconnected from Teyvat (Discord) Gateway");
+            Log.Debug("[SHUTDOWN] Disconnected from Teyvat (Discord) Gateway");            
         }
 
         /*

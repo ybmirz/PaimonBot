@@ -2,6 +2,9 @@
 using MongoDB.Driver;
 using PaimonBot.Extensions.DataModels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PaimonBot.Extensions
 {
@@ -26,10 +29,9 @@ namespace PaimonBot.Extensions
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq(FieldName, FieldValue);
 
-            if (coll.Find(filter).CountDocuments() > 0)
+            if (coll.CountDocuments(new BsonDocument()) > 0)
             {
-                var found = coll.Find(filter).First();
-                return found;
+                return coll.Find(filter).First();
             }
             else
                 return null;
@@ -66,18 +68,28 @@ namespace PaimonBot.Extensions
                 return false;
         }
 
-        public void UpdateTraveler<T>(Traveler traveler, string fieldName,T updateValue)
+        public async void UpdateTraveler<T>(Traveler traveler, string fieldName,T updateValue)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq("DiscordID", traveler.DiscordID);
             var update = Builders<Traveler>.Update.Set(fieldName, updateValue);
+            await coll.UpdateOneAsync(filter, update);
+        }
+
+        public async Task<List<ulong>> GetTravelerIDs()
+        {
+            var TravelerIds = new List<ulong>();
+            var coll = db.GetCollection<Traveler>("Travelers");
+            // return coll.Find(new BsonDocument()).ToList().Select(x => x.DiscordID);
+            await coll.Find(new BsonDocument()).ForEachAsync(x => TravelerIds.Add(x.DiscordID));
+            return TravelerIds;
         }
 
         public long GetTravelersCount()
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             return coll.CountDocuments(new BsonDocument());
-        }
+        }       
 
         public IMongoDatabase GetDBInstance()
         {

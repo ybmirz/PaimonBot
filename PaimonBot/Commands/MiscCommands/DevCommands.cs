@@ -32,11 +32,5 @@ namespace PaimonBot.Commands
             await ctx.Channel.SendMessageAsync(embed.Build()).ConfigureAwait(false);
 
         }
-
-        [Command("resin"), Description("Checks your resin")]
-        public async Task Resin(CommandContext ctx)
-        {
-
-        }
     }
 }

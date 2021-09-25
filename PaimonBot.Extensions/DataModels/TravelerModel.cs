@@ -31,7 +31,7 @@ namespace PaimonBot.Extensions.DataModels
         /// Traveler's Resin amount
         /// </summary>
         [BsonElement("ResinAmount")]
-        public int ResinAmount { get; set; } = 0;
+        public int ResinAmount { get; set; } = int.MinValue;
 
         #endregion ResinData
 
@@ -40,7 +40,7 @@ namespace PaimonBot.Extensions.DataModels
         /// Traveler's Current Realm Currency
         /// </summary>
         [BsonElement("RealmCurrency")]
-        public int RealmCurrency { get; set; } = 0;
+        public int RealmCurrency { get; set; } = int.MinValue;
         /// <summary>
         /// When the Traveler set their Currency
         /// </summary>

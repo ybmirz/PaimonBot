@@ -2,19 +2,17 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
+using PaimonBot.Extensions.Data;
+using PaimonBot.Extensions.DataModels;
 using PaimonBot.Services;
 using PaimonBot.Services.HelpFormatter;
-using PaimonBot.Extensions.DataModels;
-using System;
-using System.Threading.Tasks;
-using MongoDB.Driver;
-using MongoDB.Bson;
+using PaimonBot.Services.ResinHelper;
 using Serilog;
-using System.Linq;
-using PaimonBot.Extensions.Data;
-using DSharpPlus.Interactivity.Extensions;
-using System.Text;
+using System;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PaimonBot.Commands
 {
@@ -246,12 +244,28 @@ namespace PaimonBot.Commands
             } while (realmCurrency == int.MinValue || realmCurrency > Traveler.RealmTrustRank.GetTrustRankCurrencyCap());
             if (inputBuffer.ToLower().Contains("cancel"))
                 return;
-            #endregion RealmCurrencyAccCreate
+            #endregion RealmCurrencyAccCreate                
+
+            if (SharedData.resinTimers.Exists(timer => timer._discordID == ctx.User.Id))
+            {
+                var timer = SharedData.resinTimers.Find(timer => timer._discordID == ctx.User.Id);
+                timer.StopAndDispose();
+                SharedData.resinTimers.Remove(timer);
+                Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
+            }           
+               
 
             if (SharedData.PaimonDB.TravelerExists(ctx.User.Id))
             { SharedData.PaimonDB.ReplaceTraveler(Traveler); }
             else
-            { SharedData.PaimonDB.InsertTraveler(Traveler); }            
+            { SharedData.PaimonDB.InsertTraveler(Traveler); }
+
+            // Sets a new Timer to start.
+            var aTimer = new ResinTimer(ctx.User.Id);
+            aTimer.Start();
+            SharedData.resinTimers.Add(aTimer);
+            Log.Information($"Resin Timer for {aTimer._discordID} just started!");
+
             var embed = TravelerDashboardEmbed(ctx.User, Traveler);
             msg = $"Perfect O(〃＾▽＾〃)o! Paimon is now ready to help your on your journey! Use `{SharedData.prefixes[0]}account` to look at your profile, or if you'd just like to check " +
                 $"your current resin or currency, use `{SharedData.prefixes[0]}resin` and `{SharedData.prefixes[0]}currency` respectively. Paimon hopes you enjoy our journey ahead!";
@@ -274,6 +288,17 @@ namespace PaimonBot.Commands
                     if (Enum.IsDefined(typeof(RealmTrustRank), RealmTrustRank))
                     {
                         RealmTrustRank trustRank = (RealmTrustRank)RealmTrustRank;
+
+                        // Removes the Previous ResinTimer
+                        if (SharedData.resinTimers.Exists(timer => timer._discordID == ctx.User.Id))
+                        {
+                            var timer = SharedData.resinTimers.Find(timer => timer._discordID == ctx.User.Id);
+                            timer.StopAndDispose();
+                            SharedData.resinTimers.Remove(timer);
+                            Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
+                        }
+
+
                         Traveler traveler = new Traveler
                         {
                             DiscordID = ctx.User.Id,                            
@@ -294,6 +319,13 @@ namespace PaimonBot.Commands
                         { SharedData.PaimonDB.InsertTraveler(traveler); Log.Information("New {User} Traveler Added!", ctx.User); }
                         else
                         { SharedData.PaimonDB.ReplaceTraveler(traveler); Log.Information("Traveler {User} had their data updated!", ctx.User); }
+
+                        // Starts a new ResinTimer 
+                        var aTimer = new ResinTimer(ctx.User.Id);   
+                        aTimer.Start();
+                        SharedData.resinTimers.Add(aTimer);
+                        Log.Information($"Resin Timer for {aTimer._discordID} just started!");
+                        await ctx.RespondAsync($"Successfully created an account! Use `{SharedData.prefixes[0]}account` to check your data.").ConfigureAwait(false);
                     }
                     else
                         await PaimonServices.SendRespondAsync(ctx, "It seems that I cannot interpret that Realm Trust Rank value. Please input an integer between `1-10`.", TimeSpan.FromMinutes(5))

@@ -1,17 +1,17 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using System;
 using Microsoft.Extensions.DependencyInjection;
-using System.IO;
-using System.Text;
-using MongoDB.Driver;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using Serilog;
+using PaimonBot.Extensions;
 using PaimonBot.Models;
 using PaimonBot.Services;
-using Microsoft.AspNetCore.Builder;
-using PaimonBot.Extensions;
-using PaimonBot.Extensions.DataModels;
+using PaimonBot.Services.ResinHelper;
+using Serilog;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace PaimonBot
 {
@@ -94,16 +94,16 @@ namespace PaimonBot
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void CurrentDomain_ProcessExit(object sender, EventArgs e)
-        {        
+        {                        
             Log.Information("[SHUTDOWN] PaimonBot is now going to sleep! Thanks for the fun!");            
         }
 
         /// <summary>
         /// Void called when the application is starting up
         /// </summary>
-        private void CurrentDomain_ProcessStart()
+        private async void CurrentDomain_ProcessStart()
         {
-            Log.Information("[INIT] PaimonBot is waking up...");
+            Log.Information("[INIT] PaimonBot is waking up...");            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
