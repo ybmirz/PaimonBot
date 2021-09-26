@@ -60,10 +60,10 @@ namespace PaimonBot.Commands
             Traveler.DiscordID = ctx.User.Id;
 
             #region ResinAmountAccCreate
-            string msg = $"Oh hi, **{ctx.User.Username}**#**{ctx.User.Discriminator}**! Remember when you fished me out of the ocean? " +
+            string msg = $"Oh hi, **{ctx.User.Username}**#**{ctx.User.Discriminator}**! Remember when you fished me out of the ocean? {Emojis.BlurpEmote}" +
                 $"Paimon promised that paimon will do her best to be a great guide! Paimon can help you track your resin, Realm Currency, and more! " +
                 $"To start off (づ ◕‿◕ )づ, please enter your current Resin Amount...\n\n" +
-                $"`Disclaimer: PaimonBot will only save information that you set, such as ResinAmount, WorldLevel, GenshinServer, RealmCurrency and RealmTrustRank." +
+                $"`Disclaimer: PaimonBot will only save information that you set, such as ResinAmount, WorldLevel, GenshinServer, RealmCurrency, AdeptalEnergy and RealmTrustRank." +
                 $" Your Discord ID will be saved to attribute the above data to you. To delete your profile, simply do {SharedData.prefixes[0]}account delete.`\n" +
                 $"Type `cancel` anywhere throughout this conversation to cancel account creation.";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);            
@@ -270,7 +270,7 @@ namespace PaimonBot.Commands
             msg = $"Perfect O(〃＾▽＾〃)o! Paimon is now ready to help your on your journey! Use `{SharedData.prefixes[0]}account` to look at your profile, or if you'd just like to check " +
                 $"your current resin or currency, use `{SharedData.prefixes[0]}resin` and `{SharedData.prefixes[0]}currency` respectively. Paimon hopes you enjoy our journey ahead!";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
-            await ctx.Channel.SendMessageAsync(content: $"Here is your traveler data, **{ctx.User.Username}**#**{ctx.User.Discriminator}**!", embed: embed.Build())
+            await ctx.Channel.SendMessageAsync(content: $"Here is your traveler data, **{ctx.User.Username}**#**{ctx.User.Discriminator}**! {Emojis.HappyEmote}", embed: embed.Build())
                 .ConfigureAwait(false);
         }
 

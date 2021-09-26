@@ -12,7 +12,7 @@ namespace PaimonBot.Services.ResinHelper
     public class ResinTimer : IDisposable
     {   public ulong _discordID { get; private set; }
         private Timer _timer { get; set; }
-        public bool _remind { get; set; }
+        public bool _remind { get; private set; }
         public int _remindAt { get; private set; }
         private DiscordChannel _notifyChannel { get; set; } = null;
 
@@ -47,7 +47,7 @@ namespace PaimonBot.Services.ResinHelper
                 if (traveler.ResinAmount != 160)
                     traveler.ResinUpdatedTime = DateTime.UtcNow;
 
-                // Notifies if it reached the specified amount
+                // Notifies if it reached the specified amount and true
                 if (traveler.ResinAmount == _remindAt && _remind)
                 {
                     await NotifyUser();
@@ -66,21 +66,40 @@ namespace PaimonBot.Services.ResinHelper
         {
             try
             {
-                
+                string msg = string.Empty;
+                if (_remindAt == 160)
+                    msg = $"Traveler! Paimon's here to remind you that your Resin is now full (**{_remindAt}**/160 {Emojis.ResinEmote})! You can now grind as much as you'd like! {Emojis.HappyEmote}";
+                else
+                    msg = $"Traveler! Paimon's here to remind you that your Resin has now reached **{_remindAt}**/160 {Emojis.ResinEmote}! Use it soon enough! {Emojis.BlurpEmote}";
+                await _notifyChannel.SendMessageAsync(msg).ConfigureAwait(false);
+                Log.Information("Succesfully reminded traveler {Id} at {Resin} resin.", _discordID, _remindAt);
             }
             catch (Exception e)
-            { }
+            { Log.Warning("Oopsie, a Resin Reminder failed to remind User {Id}. Exception: {Msg} {StackTrave}", _discordID, e.Message, e.StackTrace); }
         }
 
         /// <summary>
-        /// Sets the DM Channel to send the notification to
+        /// Enables the Remind Function of the Timer
         /// </summary>
-        /// <param name="channel">Member's DM Channel</param>
-        public void SetChannel(DiscordChannel channel)
+        /// <param name="remindAt">At how much resin to remind User</param>
+        /// <param name="channel">Channel to send the Notification</param>
+        public void EnableRemind(int remindAt, DiscordChannel channel)
         {
+            _remind = true;
+            _remindAt = remindAt;
             _notifyChannel = channel;
         }
-       
+
+        /// <summary>
+        /// Disables the Remind Function of the Timer
+        /// </summary>
+        public void DisableRemind()
+        {
+            _remind = false;
+            _remindAt = int.MinValue;
+            _notifyChannel = null;
+        }
+
         public void Start()
         {
             _timer.Start();

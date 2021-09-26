@@ -33,6 +33,9 @@ namespace PaimonBot.Services
     {
         public static string ResinEmote = "<:resin:889059442061082665>";
         public static string CurrencyEmote = "<:realm_currency:889065864924639252>";
+        public static string HappyEmote = "<:paimon_happy:891661694823170058>";
+        public static string CryEmote = "<:paimon_cry:891661694558949416>";
+        public static string BlurpEmote = "<:paimon_blurp:891662650507948052>";
     }
 
     /// <summary>
