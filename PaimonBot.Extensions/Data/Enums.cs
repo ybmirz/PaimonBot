@@ -24,6 +24,30 @@ namespace PaimonBot.Extensions.Data
     }
 
     #endregion RealmTrustRankExtension
+
+    #region AdeptalEnergyLvlExtension
+    public class AdeptalEnergyNeededAttr : Attribute
+    {
+        public int AdeptalEnergyNeeded;
+        public AdeptalEnergyNeededAttr(int xp)
+        {
+            AdeptalEnergyNeeded = xp;
+        }
+    }
+
+    public class CurrencyRechargeRateAttr : Attribute
+    {
+        /// <summary>
+        /// Currency Recharge at that Adeptal Level per Hour
+        /// </summary>
+        public int CurrencyRechargeRate;
+        public CurrencyRechargeRateAttr(int rate)
+        {
+            CurrencyRechargeRate = rate;
+        }
+    }
+
+    #endregion AdeptalEnergyLvlExtension
     /// <summary>
     /// Traveler's Realm Trust Rank
     /// </summary>
@@ -78,6 +102,53 @@ namespace PaimonBot.Extensions.Data
         [TrustXPAttr(1500)]
         [BsonRepresentation(BsonType.Int32)]
         Rank10 = 10
+    }
+
+    /// <summary>
+    /// Traveler's Realm Adeptal Energy (to determine Currency Recharge)
+    /// </summary>
+    public enum AdeptalEnergyLevel
+    {
+        [BsonRepresentation(BsonType.String)]   
+        [CurrencyRechargeRateAttr(4)]
+        [AdeptalEnergyNeededAttr(0)]
+        BareBones = 0,
+        [CurrencyRechargeRateAttr(8)]
+        [AdeptalEnergyNeededAttr(2000)]
+        [BsonRepresentation(BsonType.String)]
+        HumbleAbode = 1,
+        [CurrencyRechargeRateAttr(12)]
+        [AdeptalEnergyNeededAttr(3000)]
+        [BsonRepresentation(BsonType.String)]
+        Cozy = 2,
+        [CurrencyRechargeRateAttr(16)]
+        [AdeptalEnergyNeededAttr(4500)]
+        [BsonRepresentation(BsonType.String)]
+        QueenSize = 3,
+        [CurrencyRechargeRateAttr(20)]
+        [AdeptalEnergyNeededAttr(6000)]
+        [BsonRepresentation(BsonType.String)]
+        Elegant = 4,
+        [CurrencyRechargeRateAttr(22)]
+        [AdeptalEnergyNeededAttr(8000)]
+        [BsonRepresentation(BsonType.String)]
+        Exquisite = 5,
+        [CurrencyRechargeRateAttr(24)]
+        [AdeptalEnergyNeededAttr(10000)]
+        [BsonRepresentation(BsonType.String)]
+        Extraordinary = 6,
+        [CurrencyRechargeRateAttr(26)]
+        [AdeptalEnergyNeededAttr(12000)]
+        [BsonRepresentation(BsonType.String)]
+        Stately = 7,
+        [CurrencyRechargeRateAttr(28)]
+        [AdeptalEnergyNeededAttr(15000)]
+        [BsonRepresentation(BsonType.String)]
+        Luxury = 8,
+        [CurrencyRechargeRateAttr(30)]
+        [AdeptalEnergyNeededAttr(20000)]
+        [BsonRepresentation(BsonType.String)]
+        FitForAKing = 9
     }
 
     /// <summary>

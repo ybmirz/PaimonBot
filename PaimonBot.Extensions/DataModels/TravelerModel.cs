@@ -41,6 +41,9 @@ namespace PaimonBot.Extensions.DataModels
         /// </summary>
         [BsonElement("RealmCurrency")]
         public int RealmCurrency { get; set; } = int.MinValue;
+
+        [BsonElement("AdeptalEnergyLevel")]
+        public AdeptalEnergyLevel RealmEnergyLevel { get; set; } = AdeptalEnergyLevel.BareBones;
         /// <summary>
         /// When the Traveler set their Currency
         /// </summary>
