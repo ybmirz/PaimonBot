@@ -295,7 +295,7 @@ namespace PaimonBot.Commands
                             var timer = SharedData.resinTimers.Find(timer => timer._discordID == ctx.User.Id);
                             timer.StopAndDispose();
                             SharedData.resinTimers.Remove(timer);
-                            Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
+                            Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");  
                         }
 
 

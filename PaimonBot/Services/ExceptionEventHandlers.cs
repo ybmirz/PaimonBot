@@ -18,9 +18,10 @@ namespace PaimonBot.Services
         public static Task EventHandlers_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
             if (e.Context.Channel == null)
-                Log.Information($"Command {e.Command.Name} has been executed successfully by {e.Context.User.Id} through DMs");            
+                Log.Information($"Command {e.Command?.QualifiedName} has been executed successfully by {e.Context.User.Id} through DMs. Using: {e.Context.Message.Content}");            
             else
-                Log.Information($"Command {e.Command.Name} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id})");
+                Log.Information($"Command {e.Command?.QualifiedName} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id}). " +
+                    $"Using: {e.Context.Message.Content}");
             return Task.CompletedTask;
         }
         public static async Task EventHandlers_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)

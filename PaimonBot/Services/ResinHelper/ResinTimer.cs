@@ -66,7 +66,7 @@ namespace PaimonBot.Services.ResinHelper
         {
             try
             {
-
+                
             }
             catch (Exception e)
             { }
@@ -90,13 +90,11 @@ namespace PaimonBot.Services.ResinHelper
         {           
             _timer.Stop();
             _timer.Dispose();
-            this.Dispose();
         }
 
         public void Dispose()
         {
             _timer.Dispose();
-            this.Dispose();
         }
     }
 }

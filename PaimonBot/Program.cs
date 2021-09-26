@@ -58,7 +58,7 @@ namespace PaimonBot
             // Read from CelestiaConfig.json (Bot Configuration)         
             Log.Information("Getting Celestia Config...");
             var Celestiajson = string.Empty;
-            using (var fs = File.OpenRead("./Resources/Celestia/BotConfig.json"))
+            using (var fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "/Resources/Celestia/BotConfig.json"))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false))) // Read as IS
             {
                 Celestiajson = sr.ReadToEnd();
@@ -72,7 +72,7 @@ namespace PaimonBot
             // Connecting to mongodb
             Log.Information("Connecting to PaimonDb...");
             string dbJson = string.Empty;
-            using (var fs = File.OpenRead("./Resources/Celestia/DbCredentials.json"))
+            using (var fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "/Resources/Celestia/DbCredentials.json"))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
             {
                 dbJson = sr.ReadToEnd();
@@ -85,7 +85,7 @@ namespace PaimonBot
 
             // Creating PaimonBot and running it as a service
             var Paimonbot = new PaimonBot(CelestiaConfig, serviceProvider);
-            services.AddSingleton(Paimonbot);           
+            services.AddSingleton<PaimonBot>(Paimonbot);           
         }
 
         /// <summary>

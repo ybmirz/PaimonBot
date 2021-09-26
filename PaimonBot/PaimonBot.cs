@@ -174,10 +174,7 @@ namespace PaimonBot
         private async void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             // Disable all the Timers
-            foreach (var aTimer in SharedData.resinTimers)
-            {
-                aTimer.StopAndDispose();
-            }
+            SharedData.resinTimers.ForEach(x => x.StopAndDispose());
             Log.Information($"Stopped and Disposed ResinTimer for {SharedData.resinTimers.Count} Users: {string.Join(",", SharedData.resinTimers.Select(x => x._discordID))}");
             Log.Information("[SHUTDOWN] Paimon is now leaving Teyvat!");
             Log.Debug("[SHUTDOWN] Disconnecting from Teyvat (Discord) Gateway");
