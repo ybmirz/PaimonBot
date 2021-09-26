@@ -69,7 +69,7 @@ namespace PaimonBot.Services.HelpFormatter
                 {
                     if (cmd.Parent is not CommandGroup)
                     {
-                        description = $"Below is the list of commands!\nFor more info on specific commands and its usage, use `{SharedData.prefixes[0]}help <command>`\nSomething went wrong? Contact dev through `{SharedData.prefixes[0]}contact dev`";
+                        description = $"Below is the list of commands!\nFor more info on specific commands and its usage, use `{SharedData.prefixes[0]}help <command>`\nSomething went wrong? Contact dev through `{SharedData.prefixes[0]}contact dev`\nGet started [here](https://github.com/ybmirz/PaimonBot)!";
                         _output.WithAuthor("Command List", null, SharedData.logoURL);
                         _output.ClearFields();
                         // getting the cmd's group through their attributes
