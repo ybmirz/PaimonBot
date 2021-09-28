@@ -36,6 +36,7 @@ namespace PaimonBot.Services
         public static string HappyEmote = "<:paimon_happy:891661694823170058>";
         public static string CryEmote = "<:paimon_cry:891661694558949416>";
         public static string BlurpEmote = "<:paimon_blurp:891662650507948052>";
+        public static string AdeptalEmote = "<:adeptal_energy:892438618164039680>";
     }
 
     /// <summary>

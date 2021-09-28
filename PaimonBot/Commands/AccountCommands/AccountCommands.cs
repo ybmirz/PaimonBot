@@ -6,6 +6,7 @@ using DSharpPlus.Interactivity.Extensions;
 using PaimonBot.Extensions.Data;
 using PaimonBot.Extensions.DataModels;
 using PaimonBot.Services;
+using PaimonBot.Services.CurrencyHelper;
 using PaimonBot.Services.HelpFormatter;
 using PaimonBot.Services.ResinHelper;
 using Serilog;
@@ -46,6 +47,7 @@ namespace PaimonBot.Commands
         [Command("create")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         [Description("Creates a new Traveler Account, if already exists, will overwrite.")]
+        [RequireDirectMessage]
         public async Task CreateAuto(CommandContext ctx)
         {
             var interactive = ctx.Client.GetInteractivity();
@@ -54,6 +56,7 @@ namespace PaimonBot.Commands
             string GenshinServer = string.Empty;
             int RealmTrustRank = int.MinValue;
             int worldLevel = int.MinValue;
+            int adeptalEnergy = int.MinValue;
             string inputBuffer = null;
 
             var Traveler = new Traveler();
@@ -168,7 +171,7 @@ namespace PaimonBot.Commands
 
             #region RealmTrustRankAccCreate
             msg = $"Sounds like a big place! Next (*＾▽＾)／, Paimon would like to know your current Realm Trust Rank...\n" +
-                $"Please enter a number between `1-10` as your Trust Rank.";
+                $"Please enter a number between `1-10` as your Trust Rank. This is to determine your Currency capacity.";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
             {
@@ -204,6 +207,37 @@ namespace PaimonBot.Commands
             if (inputBuffer.ToLower().Contains("cancel"))
                 return;
             #endregion RealmTrustRankAccCreate
+
+            #region AdeptalEnergyAccCreate
+            msg = $"Big grinder we have here! Next, Paimon would like to know your current Adeptal Energy level....\n" +
+                $"Please enter a number such as `21240`. This is to determine your Currency Recharge Rate.";
+            await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
+            do
+            {
+                var result = await interactive.WaitForMessageAsync(x => x.Author == ctx.User && x.Channel == ctx.Channel).ConfigureAwait(false);
+                if (result.TimedOut)
+                { await ctx.Channel.SendMessageAsync(SharedData.TimedOutString).ConfigureAwait(false); return; }
+                inputBuffer = result.Result.Content;
+                if (inputBuffer.ToLower().Contains("cancel"))
+                    return;
+                if (int.TryParse(inputBuffer, out adeptalEnergy))
+                {
+                    adeptalEnergy = int.Parse(inputBuffer);
+                    Traveler.AdeptalEnergy = adeptalEnergy;
+                }
+                else
+                {
+                    var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Adeptal Energy from that, please only input your current adeptal energy amount!").ConfigureAwait(false);
+                    await Task.Delay(3000);
+                    await result.Result.DeleteAsync();
+                    await m.DeleteAsync();
+                    adeptalEnergy = int.MinValue;
+                }
+            } while (adeptalEnergy == int.MinValue);
+            if (inputBuffer.ToLower().Contains("cancel"))
+                return;
+
+            #endregion AdeptalEnergyAccCreate
 
             #region RealmCurrencyAccCreate
             msg = $"That's awesome (/・0・)! Lastly, Paimon would like to know how much Realm Currency is built up in Tubby right now (Don't tell him about this!)...\n" +
@@ -277,7 +311,7 @@ namespace PaimonBot.Commands
         [Command("create")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         [Description("Creates a new Traveler Account, if already exists, will overwrite.")]
-        public async Task Create(CommandContext ctx, int currentResin, int RealmCurrency, string GenshinServer, int RealmTrustRank,int WorldLevel)
+        public async Task Create(CommandContext ctx, int currentResin, int RealmCurrency, string GenshinServer, int AdeptalEnergy,int RealmTrustRank,int WorldLevel)
         {
             if (Enum.TryParse(GenshinServer, out TeyvatServer teyvatServer))
             {
@@ -288,6 +322,9 @@ namespace PaimonBot.Commands
                     if (Enum.IsDefined(typeof(RealmTrustRank), RealmTrustRank))
                     {
                         RealmTrustRank trustRank = (RealmTrustRank)RealmTrustRank;
+
+                        if (AdeptalEnergy < 0)
+                            AdeptalEnergy = 0;
 
                         // Removes the Previous ResinTimer
                         if (SharedData.resinTimers.Exists(timer => timer._discordID == ctx.User.Id))
@@ -301,11 +338,12 @@ namespace PaimonBot.Commands
 
                         Traveler traveler = new Traveler
                         {
-                            DiscordID = ctx.User.Id,                            
+                            DiscordID = ctx.User.Id,
                             ResinUpdatedTime = DateTime.UtcNow,
                             ParaGadget = DateTime.UtcNow,
                             RealmCurrency = RealmCurrency,
                             CurrencyUpdated = DateTime.UtcNow,
+                            AdeptalEnergy = AdeptalEnergy,
                             RealmTrustRank = trustRank,
                             ResinAmount = currentResin,
                             GenshinServer = teyvatServer1,
@@ -681,9 +719,11 @@ namespace PaimonBot.Commands
 
             if (traveler.RealmCurrency != int.MinValue && traveler.CurrencyUpdated != null)
             {
+                var adeptal = CurrencyServices.ParseAdeptalFromInt(traveler.AdeptalEnergy);
                 desc.Clear();
+                desc.AppendLine("Current Adeptal Energy: " + $"{traveler.AdeptalEnergy} " + Emojis.AdeptalEmote + $"{adeptal}");
                 desc.AppendLine("Current Realm Currency: " + traveler.RealmCurrency + " " + Emojis.CurrencyEmote);
-                desc.AppendLine("Currency Last User Set: " + $"<t:{((DateTimeOffset)traveler.CurrencyUpdated.ToUniversalTime()).ToUnixTimeSeconds()}>");
+                desc.AppendLine("Currency Last User Set: " + $"<t:{((DateTimeOffset)traveler.CurrencyUpdated.ToUniversalTime()).ToUnixTimeSeconds()}>");                
                 desc.AppendLine();
                 embed.AddField("Realm Currency Information", desc.ToString());
             }
