@@ -43,7 +43,7 @@ namespace PaimonBot.Commands
         {
             var traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", ctx.User.Id);
 
-            if (amount > 160)
+            if (amount > 160)   
                 amount = 160;
             else if (amount < 0)
                 amount = 0;
@@ -66,7 +66,9 @@ namespace PaimonBot.Commands
                 var aTimer = new ResinTimer(ctx.User.Id);
                 aTimer.Start();
                 SharedData.resinTimers.Add(aTimer);
+                aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
                 Log.Information($"Resin Timer for {aTimer._discordID} just started!");
+                SharedData.PaimonDB.ReplaceTraveler(updateTraveler);
                 await ctx.RespondAsync($"You now have **{updateTraveler.ResinAmount}** resin {Emojis.ResinEmote}. Please use `{SharedData.prefixes[0]}resin` to check your resin. {Emojis.HappyEmote}").ConfigureAwait(false);
             }
             else
@@ -77,7 +79,7 @@ namespace PaimonBot.Commands
                     ResinAmount = amount,
                     ResinUpdatedTime = DateTime.UtcNow,
                     // Default Values for the 'empty' fields
-                    ParaGadget = null,
+                    ParaGadgetNextUse = null,
                     RealmCurrency = int.MinValue,
                     CurrencyUpdated = null
                 };
@@ -86,6 +88,7 @@ namespace PaimonBot.Commands
                 var aTimer = new ResinTimer(ctx.User.Id);
                 aTimer.Start();
                 SharedData.resinTimers.Add(aTimer);
+                aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
                 Log.Information($"Resin Timer for {aTimer._discordID} just started!");
                 await ctx.RespondAsync($"A new resin user was made, you now have **{newTraveler.ResinAmount}** resin {Emojis.ResinEmote}. Please use `{SharedData.prefixes[0]}resin` to check your resin. {Emojis.HappyEmote}").ConfigureAwait(false);
             }
@@ -102,6 +105,7 @@ namespace PaimonBot.Commands
         [Command("remind")]
         [Description("Sets PaimonBot to remind you through DMs once your resin has reached that specific amount, defaults to 160 (Full) resin.")]
         [Cooldown(1, 3, CooldownBucketType.User)]
+        [RequireGuild]
         public async Task ResinRemind(CommandContext ctx, int amount = 160)
         {
             if (amount > 160 || amount < 0)
@@ -149,6 +153,7 @@ namespace PaimonBot.Commands
         [Command("unremind")]
         [Description("Tells PaimonBot to disable your Resin Reminder if active.")]
         [Cooldown(1, 3, CooldownBucketType.User)]
+        [RequireGuild]
         public async Task ResinUnremind(CommandContext ctx)
         {
             var traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", ctx.User.Id);
@@ -181,7 +186,7 @@ namespace PaimonBot.Commands
             sb.AppendLine($"You currently have {Formatter.Bold(traveler.ResinAmount.ToString())}/160 resin {Emojis.ResinEmote}");
             sb.AppendLine($"Resin was last updated/added at <t:{((DateTimeOffset)traveler.ResinUpdatedTime.ToUniversalTime()).ToUnixTimeSeconds()}>");
             TimeSpan timeToCap = TimeSpan.FromMinutes((160 - traveler.ResinAmount) * 8);
-            DateTimeOffset capTime = (DateTimeOffset)DateTime.UtcNow + timeToCap;
+            DateTimeOffset capTime = (DateTimeOffset)traveler.ResinUpdatedTime.ToUniversalTime() + timeToCap;
             sb.AppendLine($"Your resin will be filled <t:{capTime.ToUnixTimeSeconds()}:R>");
 
             if (SharedData.resinTimers.Exists(x => x._discordID == user.Id))
@@ -198,7 +203,7 @@ namespace PaimonBot.Commands
                 .WithTitle($"{user.Username}#{user.Discriminator}'s Resin Information")
                 .WithColor(SharedData.defaultColour)
                 .WithThumbnail(user.AvatarUrl)
-                .WithFooter("Use p~resin set [amount] to set a new resin amount")
+                .WithFooter($"Use {SharedData.prefixes[0]}resin set [amount] to set a new resin amount")
                 .WithDescription(sb.ToString())
                 .WithTimestamp(DateTime.Now);
 

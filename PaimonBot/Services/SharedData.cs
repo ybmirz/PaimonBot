@@ -1,8 +1,10 @@
 ﻿using DSharpPlus.Entities;
 using PaimonBot.Extensions;
+using PaimonBot.Services.CurrencyHelper;
 using PaimonBot.Services.ResinHelper;
 using System;
 using System.Collections.Generic;
+using System.Timers;
 
 namespace PaimonBot.Services
 {
@@ -24,6 +26,16 @@ namespace PaimonBot.Services
         #region SharedResinData
         public static List<ResinTimer> resinTimers = new List<ResinTimer>();
         #endregion SharedResinData
+
+        #region SharedCurrencyData
+        public static List<RealmCurrencyTimer> currencyTimer = new List<RealmCurrencyTimer>();
+        #endregion SharedCurrencyData
+
+        #region SharedGadgetUsers
+        public static Dictionary<ulong, DiscordChannel> ParaReminderUsersDMs = new Dictionary<ulong, DiscordChannel>();
+        public static Dictionary<ulong, DateTimeOffset> ParaRemindedUsers = new Dictionary<ulong, DateTimeOffset>();
+        public static Timer GadgetTimer = new Timer();
+        #endregion
     }
 
     /// <summary>

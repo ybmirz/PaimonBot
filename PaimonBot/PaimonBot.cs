@@ -6,8 +6,10 @@ using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using PaimonBot.Commands;
+using PaimonBot.Extensions.Data;
 using PaimonBot.Models;
 using PaimonBot.Services;
+using PaimonBot.Services.CurrencyHelper;
 using PaimonBot.Services.HelpFormatter;
 using PaimonBot.Services.ResinHelper;
 using Serilog;
@@ -83,12 +85,12 @@ namespace PaimonBot
             // Start the bot
             await StartAsync();
             // Disconnect the bot when closing program
-            Console.CancelKeyPress += Console_CancelKeyPress; 
+            Console.CancelKeyPress += Console_CancelKeyPress;             
         }
 
 
         /// <summary>
-        /// Registering Commands and HelpFormatter for each shard.
+        /// Registering Commands and HelpFormatter for each shard.  
         /// </summary>
         /// <returns></returns>
         private async Task InitializeCommandsNext()
@@ -99,8 +101,10 @@ namespace PaimonBot
             IReadOnlyDictionary<int, CommandsNextExtension> cnext = await _Client.GetCommandsNextAsync();
             foreach (var cmdShard in cnext.Values)
             {
+                cmdShard.RegisterCommands<CurrencyCommands>();
                 cmdShard.RegisterCommands<ResinCommands>();
                 cmdShard.RegisterCommands<AccountCommands>();
+                cmdShard.RegisterCommands<ParaGadgetCommand>();
                 cmdShard.RegisterCommands<DevCommands>();
                 cmdShard.SetHelpFormatter<DefaultHelpFormatter>();               
             }
@@ -120,7 +124,7 @@ namespace PaimonBot
             _Client.SocketClosed += ExceptionEventHandlers._client_SocketClosed;
             return Task.CompletedTask;
         }
-
+           
         private async Task InitializeActivity()
         {
             int TravelersNum = (int)SharedData.PaimonDB.GetTravelersCount(); 
@@ -159,23 +163,70 @@ namespace PaimonBot
             await InitializeActivity();
             Log.Debug("[INIT] Paimon connected to Teyvat (Discord)!");
 
-            // Restart all the Timers
-            var TravelerIDs = await SharedData.PaimonDB.GetTravelerIDs();
-            foreach (var id in TravelerIDs)
+            // Restart Resin and Currency Timers
+            var travelersInDB = await SharedData.PaimonDB.GetTravelersAsync();
+            List<ulong> travelerswCurrencyTimer = new List<ulong>();
+            List<ulong> travelerswResinTimer = new List<ulong>();
+            foreach (var traveler in travelersInDB)
             {
-                var aTimer = new ResinTimer(id);
-                aTimer.Start();
-                SharedData.resinTimers.Add(aTimer);
+                // IF it's been more than 8 minutes and has not been added.
+                if (((DateTime.Now - traveler.ResinUpdatedTime.ToLocalTime()) >= TimeSpan.FromMinutes(8)) && traveler.ResinAmount < 160)
+                {
+                    var resinCarry = (DateTime.Now - traveler.ResinUpdatedTime.ToLocalTime()).TotalMinutes / 8;
+                    traveler.ResinAmount += Convert.ToInt32(Math.Floor(resinCarry));
+                    traveler.ResinUpdatedTime = DateTime.UtcNow;
+                    SharedData.PaimonDB.ReplaceTraveler(traveler);
+                }
+                if (traveler.ResinAmount < 160)
+                {                    
+                    var aTimer = new ResinTimer(traveler.DiscordID);
+                    aTimer.Start();
+                    aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;                    
+                    SharedData.resinTimers.Add(aTimer);
+                    travelerswResinTimer.Add(traveler.DiscordID);                    
+                }              
+                // If the traveler does have currency info
+                if (traveler.RealmCurrency != int.MinValue && traveler.CurrencyUpdated != null)
+                {
+                    var maxCurrency = traveler.RealmTrustRank.GetTrustRankCurrencyCap();
+                    if (traveler.RealmCurrency >= maxCurrency)
+                        continue; 
+                    var adpetalEnergy = CurrencyServices.ParseAdeptalFromInt(traveler.AdeptalEnergy);
+                    var cTimer = new RealmCurrencyTimer(traveler.DiscordID, traveler.RealmTrustRank, adpetalEnergy);
+                    cTimer.Start();
+                    cTimer.CurrencyCapped += PaimonServices.ATimer_CurrencyCapped;
+                    SharedData.currencyTimer.Add(cTimer);
+                    travelerswCurrencyTimer.Add(traveler.DiscordID);
+                    SharedData.PaimonDB.UpdateTraveler(traveler, "RealmCurrencyUpdated", DateTime.UtcNow);
+                }
+                // If the traveler has ParaGadget value = meaning they'll use it 
+                if (traveler.ParaGadgetNextUse != null)
+                {
+                    if (traveler.ParaGadgetRemind)
+                       SharedData.ParaRemindedUsers.Add(traveler.DiscordID, traveler.ParaGadgetNextUse.ToUniversalTime());
+                }
             }
-            Log.Information($"Started ResinTimer for {TravelerIDs.Count} Users: {string.Join(",", TravelerIDs)}");
+            Log.Information($"Started CurrencyTimers for {travelerswCurrencyTimer.Count} Users: {string.Join(",", travelerswCurrencyTimer)}");
+            Log.Information($"Started ResinTimer for {travelerswResinTimer.Count} Users: {string.Join(",", travelerswResinTimer)}");            
 
+            // Start ParametricGadget Timer    
+            SharedData.GadgetTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
+            SharedData.GadgetTimer.Elapsed += GadgetTimer_Elapsed;
+            SharedData.GadgetTimer.AutoReset = true;
+            SharedData.GadgetTimer.Start();
+            Log.Information($"Started GadgetTimer for {SharedData.ParaRemindedUsers.Count} Members in list; {string.Join(",", SharedData.ParaRemindedUsers.Keys)}");
         }
 
         private async void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             // Disable all the Timers
-            SharedData.resinTimers.ForEach(x => x.StopAndDispose());
-            Log.Information($"Stopped and Disposed ResinTimer for {SharedData.resinTimers.Count} Users: {string.Join(",", SharedData.resinTimers.Select(x => x._discordID))}");
+            SharedData.resinTimers.ForEach(x => x.StopAndDispose());           
+            Log.Information($"Stopped and Disposed ResinTimers for {SharedData.resinTimers.Count} Users: {string.Join(",", SharedData.resinTimers.Select(x => x._discordID))}");
+            SharedData.currencyTimer.ForEach(x => x.StopAndDispose());
+            Log.Information($"Stopped and Disposed CurrencyTimers for {SharedData.currencyTimer.Count} Users: {string.Join(",", SharedData.currencyTimer.Select(x => x.DiscordId))}");
+            SharedData.GadgetTimer.Stop();
+            SharedData.GadgetTimer.Dispose();
+            Log.Information($"Stopped and Disposed Global GadgetReminderTimer. Users to be Reminded: {string.Join(",", SharedData.ParaRemindedUsers.Keys)}");
             Log.Information("[SHUTDOWN] Paimon is now leaving Teyvat!");
             Log.Debug("[SHUTDOWN] Disconnecting from Teyvat (Discord) Gateway");
             await _Client.StopAsync();
@@ -195,6 +246,37 @@ namespace PaimonBot
             SharedData.startTime = DateTime.Now;
             SharedData.prefixes = _prefixes;
             SharedData.botName = _BotName;
+        }
+
+        private async void GadgetTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            foreach (var pair in SharedData.ParaRemindedUsers)
+            {
+                if (pair.Value.Date == DateTime.UtcNow.Date && pair.Value.Hour == DateTime.UtcNow.Hour)
+                {
+                    try
+                    {
+                        // Notifies the User
+                        var dmChannel = SharedData.ParaReminderUsersDMs[pair.Key];
+                        await dmChannel.SendMessageAsync($"Hi there Traveler! Paimon was told you can now use your **Parametric Gadget**! Be sure to use `{SharedData.prefixes[0]}gadget use` when you use your gadget in-game to tell Paimon about it too!").ConfigureAwait(false);
+
+                        // Deletes from the list and updates the traveler                        
+                        var traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", pair.Key);
+                        if (traveler == null)
+                        { Log.Error("Traveler {Id} does not seem to exist in the database, whilst their GadgetRemind exists in the listt", pair.Key); continue; }
+                        traveler.ParaGadgetNextUse = null;
+                        traveler.ParaGadgetRemind = false;
+                        SharedData.PaimonDB.ReplaceTraveler(traveler);
+                        SharedData.ParaRemindedUsers.Remove(pair.Key);
+                        SharedData.ParaReminderUsersDMs.Remove(pair.Key);
+
+                        // Logging
+                        Log.Information("Succesfully reminded Traveler {Id} to use their Parametric Gadget!", pair.Value);
+                    }
+                    catch (Exception x)
+                    { Log.Warning("Oopsie, a Gadget Reminder failed to remind User {id}. Exception: {Msg} {StackTrace}", pair.Key, x.Message, x.StackTrace); }
+                }
+            }
         }
 
     }

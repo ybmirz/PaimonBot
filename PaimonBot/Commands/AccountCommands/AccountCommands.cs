@@ -210,7 +210,7 @@ namespace PaimonBot.Commands
 
             #region AdeptalEnergyAccCreate
             msg = $"Big grinder we have here! Next, Paimon would like to know your current Adeptal Energy level....\n" +
-                $"Please enter a number such as `21240`. This is to determine your Currency Recharge Rate.";
+                $"Please enter a number such as `21240`. This is to determine your Currency Recharge Rate per hour (Number of Currency made an hour.).";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
             {
@@ -295,8 +295,9 @@ namespace PaimonBot.Commands
             { SharedData.PaimonDB.InsertTraveler(Traveler); }
 
             // Sets a new Timer to start.
-            var aTimer = new ResinTimer(ctx.User.Id);
+            var aTimer = new ResinTimer(ctx.User.Id);            
             aTimer.Start();
+            aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
             SharedData.resinTimers.Add(aTimer);
             Log.Information($"Resin Timer for {aTimer._discordID} just started!");
 
@@ -340,7 +341,7 @@ namespace PaimonBot.Commands
                         {
                             DiscordID = ctx.User.Id,
                             ResinUpdatedTime = DateTime.UtcNow,
-                            ParaGadget = DateTime.UtcNow,
+                            ParaGadgetNextUse = null,
                             RealmCurrency = RealmCurrency,
                             CurrencyUpdated = DateTime.UtcNow,
                             AdeptalEnergy = AdeptalEnergy,
@@ -362,6 +363,7 @@ namespace PaimonBot.Commands
                         var aTimer = new ResinTimer(ctx.User.Id);   
                         aTimer.Start();
                         SharedData.resinTimers.Add(aTimer);
+                        aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
                         Log.Information($"Resin Timer for {aTimer._discordID} just started!");
                         await ctx.RespondAsync($"Successfully created an account! Use `{SharedData.prefixes[0]}account` to check your data.").ConfigureAwait(false);
                     }
@@ -384,7 +386,7 @@ namespace PaimonBot.Commands
         [Cooldown(1,5, CooldownBucketType.User)]
         public async Task Delete(CommandContext ctx)
         {
-            var Traveler = SharedData.PaimonDB.GetTravelerBy<ulong>("DiscordID", ctx.User.Id);
+            var Traveler = SharedData.PaimonDB.GetTravelerBy<ulong>("DiscordID", ctx.User.Id);           
             if (Traveler != null)
             {
                 var interactive = ctx.Client.GetInteractivity();
@@ -693,9 +695,13 @@ namespace PaimonBot.Commands
         private DiscordEmbedBuilder TravelerDashboardEmbed(DiscordUser user, Traveler traveler)
         {
             StringBuilder desc = new StringBuilder();
-            desc.AppendLine(Formatter.Bold("DiscordID: ") + Formatter.InlineCode(traveler.DiscordID.ToString()));            
-            if (traveler.ParaGadget != null)
-                desc.AppendLine(Formatter.Bold("Parametric Gadget Used Date: ") + $"<t:{((DateTimeOffset)traveler.ParaGadget.ToUniversalTime()).ToUnixTimeSeconds()}>");
+            desc.AppendLine(Formatter.Bold("DiscordID: ") + Formatter.InlineCode(traveler.DiscordID.ToString()));
+            if (traveler.ParaGadgetNextUse != null)
+            {
+                var used = (DateTimeOffset) traveler.ParaGadgetNextUse.ToUniversalTime() - TimeSpan.FromDays(7);
+                desc.AppendLine(Formatter.Bold("Parametric Gadget Used: ") + $"<t:{used.ToUnixTimeSeconds()}>");
+                desc.AppendLine(Formatter.Bold("Parametric Gadget Next Use: ") + $"<t:{((DateTimeOffset)traveler.ParaGadgetNextUse.ToUniversalTime()).ToUnixTimeSeconds()}>");                
+            }
             desc.AppendLine();
 
             var embed = new DiscordEmbedBuilder()
@@ -712,7 +718,7 @@ namespace PaimonBot.Commands
             {
                 desc.Clear();
                 desc.AppendLine("Current Resin: " + traveler.ResinAmount + " " + Emojis.ResinEmote);
-                desc.AppendLine("Resin Last Updated: " + $"<t:{((DateTimeOffset)traveler.ResinUpdatedTime.ToUniversalTime()).ToUnixTimeSeconds()}>");
+                desc.AppendLine("Resin Last Added by Paimon at " + $"<t:{((DateTimeOffset)traveler.ResinUpdatedTime.ToUniversalTime()).ToUnixTimeSeconds()}>");
                 desc.AppendLine();
                 embed.AddField("Resin Information", desc.ToString());
             }
@@ -721,9 +727,9 @@ namespace PaimonBot.Commands
             {
                 var adeptal = CurrencyServices.ParseAdeptalFromInt(traveler.AdeptalEnergy);
                 desc.Clear();
-                desc.AppendLine("Current Adeptal Energy: " + $"{traveler.AdeptalEnergy} " + Emojis.AdeptalEmote + $"{adeptal}");
+                desc.AppendLine("Current Adeptal Energy: " + $"{traveler.AdeptalEnergy} " + Emojis.AdeptalEmote + $" ({adeptal})");
                 desc.AppendLine("Current Realm Currency: " + traveler.RealmCurrency + " " + Emojis.CurrencyEmote);
-                desc.AppendLine("Currency Last User Set: " + $"<t:{((DateTimeOffset)traveler.CurrencyUpdated.ToUniversalTime()).ToUnixTimeSeconds()}>");                
+                desc.AppendLine("Currency Last Set by User at " + $"<t:{((DateTimeOffset)traveler.CurrencyUpdated.ToUniversalTime()).ToUnixTimeSeconds()}>");                
                 desc.AppendLine();
                 embed.AddField("Realm Currency Information", desc.ToString());
             }

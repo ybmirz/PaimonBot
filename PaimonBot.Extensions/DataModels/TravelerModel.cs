@@ -55,10 +55,21 @@ namespace PaimonBot.Extensions.DataModels
 
         #endregion RealmCurrencyData
 
-        #region TeyvatData
-        [BsonElement("ParaGadgetUsed")]
-        public BsonDateTime ParaGadget { get; set; } = null;
+        #region ParametricGadgetData
+        /// <summary>
+        /// The next time traveler can use their Gadget
+        /// </summary>      
+        [BsonElement("ParaGadgetNextUse")]
+        public BsonDateTime ParaGadgetNextUse { get; set; } = null;
 
+        /// <summary>
+        /// Determine whether to remind the Traveler when they can next use the Gadget
+        /// </summary>
+        [BsonElement("ParaGadgetRemind")]
+        public bool ParaGadgetRemind { get; set; } = false;
+        #endregion ParametricGadgetData
+
+        #region TeyvatData
         /// <summary>
         /// Traveler's Realm Trust Rank
         /// </summary>

@@ -1,5 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using PaimonBot.Services.CurrencyHelper;
+using PaimonBot.Services.ResinHelper;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -138,5 +141,33 @@ namespace PaimonBot.Services
                 .WithFooter(footerText, footerUrl);
         }
 
+        /// <summary>
+        /// When resin caps, disable and dispose the timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void ATimer_ResinCapped(object sender, ResinCappedEventArgs e)
+        {
+            Log.Information("Resin for User {Id} has capped. Disposing timer...", e.DiscordId);
+            e.resinTimer.Stop();
+            e.resinTimer.Dispose();
+            SharedData.resinTimers.Remove(SharedData.resinTimers.Find(x => x._discordID == e.DiscordId));
+            Log.Information("Resin for User {Id} has capped. Timer Disposed.", e.DiscordId);
+        }
+
+        /// <summary>
+        /// When Currency caps, disable and dispose the timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void ATimer_CurrencyCapped(object sender, CurrencyCappedEventArgs e)
+        {
+            Log.Information("Currency for User {Id} has capped. Disposing timer...", e.DiscordId);
+            e.currencyTimer.Stop();
+            e.currencyTimer.Dispose();
+            SharedData.currencyTimer.Remove(SharedData.currencyTimer.Find(x => x.DiscordId == e.DiscordId));
+            Log.Information("Currency for User {Id} has capped. Timer Disposed.", e.DiscordId);
+        }
+        
     }    
 }

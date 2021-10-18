@@ -35,6 +35,7 @@ namespace PaimonBot.Services.ResinHelper
             if (traveler != null)
             {
                 traveler.ResinAmount++;
+
                 if (traveler.ResinAmount > 160)
                 traveler.ResinAmount = 160;
                 if (traveler.ResinAmount < 0)
@@ -44,7 +45,7 @@ namespace PaimonBot.Services.ResinHelper
                 if (traveler.ResinAmount != 160)
                     traveler.ResinUpdatedTime = DateTime.UtcNow;
 
-                // Notifies if it reached the specified amount and true
+                // Notifies if it reached the specified amount and true     
                 if (traveler.ResinAmount == _remindAt && _remind)
                 {
                     await NotifyUser();
@@ -54,6 +55,18 @@ namespace PaimonBot.Services.ResinHelper
 
                 SharedData.PaimonDB.UpdateTraveler(traveler, "ResinAmount", traveler.ResinAmount);
                 Log.Information($"Succesfully added resin to Traveler {_discordID} at {DateTime.UtcNow} (UTC)");
+
+                // If Resin Capped, throw Invoke the Event
+                if (traveler.ResinAmount >= 160)
+                {
+                    ResinCappedEventArgs args = new ResinCappedEventArgs();
+                    args.DiscordId = _discordID;
+                    args.CappedTime = DateTime.UtcNow;
+                    args.resinTimer = _timer;
+                    OnResinCapped(args);
+                    return;
+                }
+
             }
             else
                 throw new InvalidOperationException($"Traveler {_discordID} does not seem to exist whilst trying to update resin!");
@@ -72,7 +85,7 @@ namespace PaimonBot.Services.ResinHelper
                 Log.Information("Succesfully reminded traveler {Id} at {Resin} resin.", _discordID, _remindAt);
             }
             catch (Exception e)
-            { Log.Warning("Oopsie, a Resin Reminder failed to remind User {Id}. Exception: {Msg} {StackTrave}", _discordID, e.Message, e.StackTrace); }
+            { Log.Warning("Oopsie, a Resin Reminder failed to remind User {Id}. Exception: {Msg} {StackTrace}", _discordID, e.Message, e.StackTrace); }
         }
 
         /// <summary>
@@ -112,5 +125,23 @@ namespace PaimonBot.Services.ResinHelper
         {
             _timer.Dispose();
         }
+
+        protected virtual void OnResinCapped(ResinCappedEventArgs e)
+        {
+            EventHandler<ResinCappedEventArgs> handler = ResinCapped;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public event EventHandler<ResinCappedEventArgs> ResinCapped;
+    }
+
+    public class ResinCappedEventArgs : EventArgs
+    {
+        public Timer resinTimer { get; set; }
+        public DateTime CappedTime { get; set; }
+        public ulong DiscordId { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace PaimonBot.Services
         #region CommandEventHandlers
         public static Task EventHandlers_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
-            if (e.Context.Channel == null)
+            if (e.Context.Guild == null)
                 Log.Information($"Command {e.Command?.QualifiedName} has been executed successfully by {e.Context.User.Id} through DMs. Using: {e.Context.Message.Content}");            
             else
                 Log.Information($"Command {e.Command?.QualifiedName} has been executed succesfully by {e.Context.User.Id} in {e.Context.Guild?.Name} ({e.Context.Guild?.Id}). " +
@@ -97,9 +97,14 @@ namespace PaimonBot.Services
                                     ResponseType.Warning).ConfigureAwait(false);
                                 break;
                             case RequireDirectMessageAttribute:
-                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title, "This command can only be done through our DMs. " +
-                                    "Paimon's waiting for you! teehee ~", TimeSpan.FromSeconds(secondsDelay),
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title, "Command Usage Error. This command can only be done through **Direct Messages** (DM) Channels. Please try again there. " +
+                                    "Paimon's waiting for you! " +Emojis.HappyEmote, TimeSpan.FromSeconds(secondsDelay),
                                     ResponseType.Warning).ConfigureAwait(false);
+                                break;
+                            case RequireGuildAttribute:
+                                await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title, "Command Usage Error. This command can only be done in a Guild. Please try again in a guild that Paimon and you are in. " +
+                                    "Paimon's waiting for you!", TimeSpan.FromSeconds(secondsDelay), ResponseType.Warning)
+                                    .ConfigureAwait(false);
                                 break;
                             default:
                                 await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, title,
@@ -107,8 +112,14 @@ namespace PaimonBot.Services
                                     TimeSpan.FromSeconds(secondsDelay), ResponseType.Error).ConfigureAwait(false);
                                 break;
                         }
-                    Log.Warning("{User} has triggered the following Check Failed Exception(s): {Exceptions} in {Guild}",
-                            e.Context.User, string.Join(",", cfe.FailedChecks), e.Context.Guild);
+                    Log.Warning("{User} has triggered the following Check Failed Exception(s): {Exceptions} in {Channel}",
+                            e.Context.User, string.Join(",", cfe.FailedChecks), e.Context.Channel);
+                    break;
+                default:
+                    //await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Unknown Exception Handle", $"Exception Message: {e.Exception.Message} | Type: {e.Exception.GetType()}", TimeSpan.FromSeconds(6)
+                    //    , ResponseType.Warning);
+                    Log.Warning("{User} has failed a command with the following: {Exception} in {Channel}",
+                        e.Context.User, e.Exception.Message, e.Context.Channel);
                     break;
             }
         }
@@ -131,7 +142,31 @@ namespace PaimonBot.Services
         public static Task _Client_GuildAvailable(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs e)
         {
             Log.Information($"PaimonBot sees a traveler's guild! Name:{e.Guild.Name} ({e.Guild.Id})");
+            _ = Task.Run(async () => GetDMs(e));
             return Task.CompletedTask;
+        }
+
+        private static async Task GetDMs(DSharpPlus.EventArgs.GuildCreateEventArgs e)
+        {
+            var membersFound = e.Guild.Members.Keys.Where(x => SharedData.ParaRemindedUsers.Keys.Contains(x));
+            foreach (var memberID in membersFound)
+            {
+                var member = await e.Guild.GetMemberAsync(memberID);
+                try {
+                    var DMChannel = await member.CreateDmChannelAsync().ConfigureAwait(false);
+                    SharedData.ParaReminderUsersDMs.Add(memberID, DMChannel);
+                }                
+                catch (Exception ex)
+                {
+                    if (ex is UnauthorizedException)
+                    {
+                        Log.Warning("Member {Id} was found in Remindlist and Guild, however DM channel was unable to be created. {ExceptionMsg}", memberID, ex.Message);
+                    }
+                    else
+                        throw ex;
+                }
+            }
+            Log.Information($"Cached {SharedData.ParaReminderUsersDMs.Count} DMs for Parametric Gadget Reminding.");
         }
 
         public static Task _Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
