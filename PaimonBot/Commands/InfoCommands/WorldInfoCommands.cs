@@ -1,19 +1,13 @@
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Serilog;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq;
-using DSharpPlus.Exceptions;
-using PaimonBot.Services.HelpFormatter;
-using PaimonBot.Services;
-using System.Collections.Generic;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
-using System.IO;
+using PaimonBot.Services;
+using PaimonBot.Services.HelpFormatter;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PaimonBot.Commands
 {

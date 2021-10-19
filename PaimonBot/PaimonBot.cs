@@ -102,6 +102,7 @@ namespace PaimonBot
             IReadOnlyDictionary<int, CommandsNextExtension> cnext = await _Client.GetCommandsNextAsync();
             foreach (var cmdShard in cnext.Values)
             {
+                cmdShard.RegisterCommands<UtilCommands>();
                 cmdShard.RegisterCommands<WorldInfoCommand>();
                 cmdShard.RegisterCommands<CurrencyCommands>();
                 cmdShard.RegisterCommands<ResinCommands>();
