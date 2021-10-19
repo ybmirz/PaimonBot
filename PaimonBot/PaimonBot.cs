@@ -74,11 +74,12 @@ namespace PaimonBot
                 PaginationDeletion = DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteEmojis,
                 Timeout = TimeSpan.FromMinutes(1),
                 PaginationButtons = new PaginationButtons() {
-                    Left = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_left","",emoji: new DiscordComponentEmoji("◀")),
-                    Right = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_right","",emoji: new DiscordComponentEmoji("▶")),
-                    Stop = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_stop","",emoji: new DiscordComponentEmoji("🛑"))                    
+                    Left = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_left", "", emoji: new DiscordComponentEmoji("◀")),
+                    Right = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_right", "", emoji: new DiscordComponentEmoji("▶")),
+                    Stop = new DiscordButtonComponent(ButtonStyle.Secondary, "pagination_stop", "", emoji: new DiscordComponentEmoji("🛑"))                    
                 },
-                ButtonBehavior = DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior.DeleteButtons,                
+                ButtonBehavior = DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior.DeleteButtons,
+                AckPaginationButtons = true              
             };
             await _Client.UseInteractivityAsync(interactivityConfig);
 
@@ -101,6 +102,7 @@ namespace PaimonBot
             IReadOnlyDictionary<int, CommandsNextExtension> cnext = await _Client.GetCommandsNextAsync();
             foreach (var cmdShard in cnext.Values)
             {
+                cmdShard.RegisterCommands<WorldInfoCommand>();
                 cmdShard.RegisterCommands<CurrencyCommands>();
                 cmdShard.RegisterCommands<ResinCommands>();
                 cmdShard.RegisterCommands<AccountCommands>();
@@ -172,8 +174,10 @@ namespace PaimonBot
                 // IF it's been more than 8 minutes and has not been added.
                 if (((DateTime.Now - traveler.ResinUpdatedTime.ToLocalTime()) >= TimeSpan.FromMinutes(8)) && traveler.ResinAmount < 160)
                 {
-                    var resinCarry = (DateTime.Now - traveler.ResinUpdatedTime.ToLocalTime()).TotalMinutes / 8;
+                    var resinCarry = (DateTime.Now - traveler.ResinUpdatedTime.ToLocalTime()).TotalMinutes / 8;                    
                     traveler.ResinAmount += Convert.ToInt32(Math.Floor(resinCarry));
+                    if (traveler.ResinAmount > 160)
+                        traveler.ResinAmount = 160;
                     traveler.ResinUpdatedTime = DateTime.UtcNow;
                     SharedData.PaimonDB.ReplaceTraveler(traveler);
                 }

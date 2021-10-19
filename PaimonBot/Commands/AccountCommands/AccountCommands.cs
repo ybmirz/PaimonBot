@@ -32,10 +32,11 @@ namespace PaimonBot.Commands
             {
                 var dashboardEmbed = TravelerDashboardEmbed(ctx.User, traveler);
                 var messageBuilder = new DiscordMessageBuilder().WithEmbed(dashboardEmbed.Build());
-              //  FileStream fs = new FileStream("./Resources/Images/acc.png", FileMode.Open);
-              //  messageBuilder.WithFile(fs);     
+                FileStream fs = new FileStream(AppDomain.CurrentDomain.BaseDirectory + "/Resources/Images/acc.png", FileMode.Open);
+                messageBuilder.WithFile(fs);                
                 await ctx.RespondAsync(messageBuilder)
                         .ConfigureAwait(false);
+                fs.Close();
             }
             else
                 await PaimonServices.SendRespondAsync(ctx, $"It seems you're not in the database, please do `{SharedData.prefixes[0]}account create` through DM to create your account first and try again!"

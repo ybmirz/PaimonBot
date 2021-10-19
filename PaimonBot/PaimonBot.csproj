@@ -47,10 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\InfoCommands\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PaimonBot.Extensions\PaimonBot.Extensions.csproj" />
   </ItemGroup>
 
