@@ -54,6 +54,7 @@ namespace PaimonBot.Services.ResinHelper
                 }
 
                 SharedData.PaimonDB.UpdateTraveler(traveler, "ResinAmount", traveler.ResinAmount);
+                SharedData.PaimonDB.UpdateTraveler(traveler, "ResinUpdated", traveler.ResinUpdatedTime);
                 Log.Information($"Succesfully added resin to Traveler {_discordID} at {DateTime.UtcNow} (UTC)");
 
                 // If Resin Capped, throw Invoke the Event

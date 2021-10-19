@@ -32,8 +32,8 @@ namespace PaimonBot.Commands
             {
                 var dashboardEmbed = TravelerDashboardEmbed(ctx.User, traveler);
                 var messageBuilder = new DiscordMessageBuilder().WithEmbed(dashboardEmbed.Build());
-                FileStream fs = new FileStream("./Resources/Images/acc.png", FileMode.Open);
-                messageBuilder.WithFile(fs);     
+              //  FileStream fs = new FileStream("./Resources/Images/acc.png", FileMode.Open);
+              //  messageBuilder.WithFile(fs);     
                 await ctx.RespondAsync(messageBuilder)
                         .ConfigureAwait(false);
             }
@@ -65,7 +65,7 @@ namespace PaimonBot.Commands
             #region ResinAmountAccCreate
             string msg = $"Oh hi, **{ctx.User.Username}**#**{ctx.User.Discriminator}**! Remember when you fished me out of the ocean? {Emojis.BlurpEmote}" +
                 $"Paimon promised that paimon will do her best to be a great guide! Paimon can help you track your resin, Realm Currency, and more! " +
-                $"To start off (づ ◕‿◕ )づ, please enter your current Resin Amount...\n\n" +
+                $"To start off (づ ◕‿◕ )づ, please enter your **current Resin Amount**...\n\n" +
                 $"`Disclaimer: PaimonBot will only save information that you set, such as ResinAmount, WorldLevel, GenshinServer, RealmCurrency, AdeptalEnergy and RealmTrustRank." +
                 $" Your Discord ID will be saved to attribute the above data to you. To delete your profile, simply do {SharedData.prefixes[0]}account delete.`\n" +
                 $"Type `cancel` anywhere throughout this conversation to cancel account creation.";
@@ -86,7 +86,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get the resin amount from that, please input a number between `0-160`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                    //await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                 }
 
@@ -103,7 +103,7 @@ namespace PaimonBot.Commands
 
             #region WorldLevelAccCreate
             // World Level
-            msg = $"Next up （＾ω＾）, Paimon would like to know your current World Level in Teyvat! Please enter a number between `0-8`...";
+            msg = $"Next up （＾ω＾）, Paimon would like to know your current **World Level** in Teyvat! Please enter a number between `0-8`...";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
             {
@@ -122,7 +122,7 @@ namespace PaimonBot.Commands
                     {
                         var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your World Level from that, please input a number between `0-8`!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                        //await result.Result.DeleteAsync();
                         await m.DeleteAsync();
                         worldLevel = int.MinValue;
                     }
@@ -131,7 +131,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your World Level from that, please input a number between `0-8`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                   // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     worldLevel = int.MinValue;
                 }
@@ -142,7 +142,7 @@ namespace PaimonBot.Commands
             #endregion WorldLevelAccCreate
 
             #region GenshinServerAccCreate
-            msg = $"Interesting (〃▽〃), Paimon would like to know which Teyvat server you reside in...\n\n" +
+            msg = $"Interesting (〃▽〃), Paimon would like to know which **Teyvat server** you reside in...\n\n" +
                 $"Please enter between the following (case sensitive): `NorthAmerica` `Europe` `Asia` `TWHKMO`";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
@@ -160,7 +160,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Genshin Server from that, please try again!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                    //await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     GenshinServer = string.Empty;
                 }
@@ -170,7 +170,7 @@ namespace PaimonBot.Commands
             #endregion GenshinServerAccCreate
 
             #region RealmTrustRankAccCreate
-            msg = $"Sounds like a big place! Next (*＾▽＾)／, Paimon would like to know your current Realm Trust Rank...\n" +
+            msg = $"Sounds like a big place! Next (*＾▽＾)／, Paimon would like to know your current **Realm Trust Rank**...\n" +
                 $"Please enter a number between `1-10` as your Trust Rank. This is to determine your Currency capacity.";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
@@ -190,7 +190,7 @@ namespace PaimonBot.Commands
                     {
                         var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Realm Trust Rank from that, please input a number between `1-10`!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                        //await result.Result.DeleteAsync();
                         await m.DeleteAsync();
                         RealmTrustRank = int.MinValue;
                     }
@@ -199,7 +199,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Realm Trust Rank from that, please input a number between `1-10`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                   // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     RealmTrustRank = int.MinValue;
                 }
@@ -209,7 +209,7 @@ namespace PaimonBot.Commands
             #endregion RealmTrustRankAccCreate
 
             #region AdeptalEnergyAccCreate
-            msg = $"Big grinder we have here! Next, Paimon would like to know your current Adeptal Energy level....\n" +
+            msg = $"Big grinder we have here! Next, Paimon would like to know your current **Adeptal Energy level**....\n" +
                 $"Please enter a number such as `21240`. This is to determine your Currency Recharge Rate per hour (Number of Currency made an hour.).";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
@@ -229,7 +229,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Adeptal Energy from that, please only input your current adeptal energy amount!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                   // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     adeptalEnergy = int.MinValue;
                 }
@@ -240,7 +240,7 @@ namespace PaimonBot.Commands
             #endregion AdeptalEnergyAccCreate
 
             #region RealmCurrencyAccCreate
-            msg = $"That's awesome (/・0・)! Lastly, Paimon would like to know how much Realm Currency is built up in Tubby right now (Don't tell him about this!)...\n" +
+            msg = $"That's awesome (/・0・)! Lastly, Paimon would like to know how much **Realm Currency** is built up in Tubby right now (Don't tell him about this!)...\n" +
                 $"Please enter your current Currency amount, this will be cross-checked with the Trust Rank you've entered before.";
             await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
@@ -254,7 +254,7 @@ namespace PaimonBot.Commands
                 if (int.TryParse(inputBuffer, out realmCurrency))
                 {
                     realmCurrency = int.Parse(inputBuffer);
-                    if (realmCurrency <= Traveler.RealmTrustRank.GetTrustRankCurrencyCap())
+                    if (realmCurrency <= Traveler.RealmTrustRank.GetTrustRankCurrencyCap() && realmCurrency > 0)
                     {
                         Traveler.RealmCurrency = realmCurrency;
                         Traveler.CurrencyUpdated = DateTime.UtcNow;
@@ -262,9 +262,9 @@ namespace PaimonBot.Commands
                     else
                     {
                         var m = await ctx.Channel.SendMessageAsync($"Paimon caught you! That amount is above the Trust Rank Capacity that was set; Your trust rank is `{Traveler.RealmTrustRank}` " +
-                            $"with a capacity of `{Traveler.RealmTrustRank.GetTrustRankCurrencyCap()}` Realm Currency. Please input a number below this!").ConfigureAwait(false);
+                            $"with a capacity of `{Traveler.RealmTrustRank.GetTrustRankCurrencyCap()}` Realm Currency or is a negative value! Please input a number below this!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                       // await result.Result.DeleteAsync();
                         await m.DeleteAsync();
                     }
                 }
@@ -272,7 +272,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Currency Amount from that, please input a number!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                    //await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                 }
             } while (realmCurrency == int.MinValue || realmCurrency > Traveler.RealmTrustRank.GetTrustRankCurrencyCap());
@@ -710,8 +710,7 @@ namespace PaimonBot.Commands
               .WithTitle($"{user.Username}#{user.Discriminator}'s Traveler Profile")
               .WithThumbnail(user.AvatarUrl)
               .WithTimestamp(DateTime.UtcNow)
-              .WithDescription(desc.ToString())
-              .WithImageUrl("attachment://acc.png")
+              .WithDescription(desc.ToString())              
               .WithFooter($"If any of the information above is wrong, please update said information using {SharedData.prefixes[0]}acc update [resin/currency/server/worldlevel/trustrank]");
 
             if (traveler.ResinAmount != int.MinValue && traveler.ResinUpdatedTime != null)

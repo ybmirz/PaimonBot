@@ -13,7 +13,7 @@ namespace PaimonBot.Extensions
         private IMongoDatabase db;
         public PaimonDb(string connectionString, string database)
         {
-            var client = new MongoClient(connectionString);           
+            var client = new MongoClient(connectionString);
             db = client.GetDatabase(database);
         }
 
@@ -24,12 +24,12 @@ namespace PaimonBot.Extensions
             await coll.InsertOneAsync(input);
             TravelerAdded?.Invoke(this, EventArgs.Empty);
         }
-        public Traveler GetTravelerBy<T>(string FieldName,T FieldValue)
+        public Traveler GetTravelerBy<T>(string FieldName, T FieldValue)
         {
             var coll = db.GetCollection<Traveler>("Travelers");
             var filter = Builders<Traveler>.Filter.Eq(FieldName, FieldValue);
 
-            if (coll.CountDocuments(new BsonDocument()) > 0)
+            if (coll.Find(filter).CountDocuments() > 0)
             {
                 return coll.Find(filter).First();
             }
