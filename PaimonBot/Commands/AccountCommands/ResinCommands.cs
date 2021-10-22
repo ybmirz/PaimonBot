@@ -139,7 +139,7 @@ namespace PaimonBot.Commands
                             Log.Warning("User {Id} tried to enable Resin Remind, however does not have DMs Enabled. {ExceptionMessage}", ctx.User.Id, e.Message);
                         }
                         else
-                            throw e;
+                            Log.Error("This is Exception E {Exception} , Message: {E.Message} Stacktrace: {E.StackTrace}");
                     }
                 }
                 else

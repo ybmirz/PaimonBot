@@ -44,7 +44,7 @@ namespace PaimonBot.Commands
         }
 
         [Command("use")]
-        [Description("Use this command to enable a parametric gadget reminder")]
+        [Description("Use this command to enable a parametric gadget")]
         [Cooldown(1, 3, CooldownBucketType.User)]
         public async Task ParametricGadgetUpdate(CommandContext ctx)
         {
@@ -110,10 +110,10 @@ namespace PaimonBot.Commands
                         await PaimonServices.SendEmbedToChannelAsync(ctx.Channel, "Gadget Remind Error", "It seems that you do not have DMs from Server Members Enabled. " +
                                 "Please enable to let Paimon talk to you! Once Enabled, please try again. Learn more [here](https://support.discord.com/hc/en-us/articles/217916488-Blocking-Privacy-Settings-)!"
                                 , TimeSpan.FromSeconds(5), ResponseType.Warning);
-                        Log.Warning("User {Id} tried to enable Gadget Remind, however does not have DMs Enabled. {ExceptionMessage}",ctx.User.Id, e.Message);
+                        Log.Warning("User {Id} tried to enable Gadget Remind, however does not have DMs Enabled. {ExceptionMessage}", ctx.User.Id, e.Message);
                     }
                     else
-                        throw e;
+                        Log.Error("This is Exception E {Exception} , Message: {E.Message} Stacktrace: {E.StackTrace}");
                 }
             } 
             else
