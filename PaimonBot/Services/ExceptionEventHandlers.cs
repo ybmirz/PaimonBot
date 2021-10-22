@@ -26,7 +26,7 @@ namespace PaimonBot.Services
         }
         public static async Task EventHandlers_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
-            int secondsDelay = 6;
+            int secondsDelay = 8;
             switch (e.Exception)
             {
                 case CommandNotFoundException x:
@@ -118,8 +118,8 @@ namespace PaimonBot.Services
                 default:
                     //await PaimonServices.SendEmbedToChannelAsync(e.Context.Channel, "Unknown Exception Handle", $"Exception Message: {e.Exception.Message} | Type: {e.Exception.GetType()}", TimeSpan.FromSeconds(6)
                     //    , ResponseType.Warning);
-                    Log.Warning("{User} has failed a command with the following: {Exception} in {Channel}",
-                        e.Context.User, e.Exception.Message, e.Context.Channel);
+                    Log.Warning("{User} has failed a command with the following: {Exception} in {Channel} StackTrace: {StackTrace}",
+                        e.Context.User, e.Exception.Message, e.Context.Channel, e.Exception.StackTrace);
                     break;
             }
         }
