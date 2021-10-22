@@ -142,7 +142,7 @@ namespace PaimonBot.Services
         public static Task _Client_GuildAvailable(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs e)
         {
             Log.Information($"PaimonBot sees a traveler's guild! Name:{e.Guild.Name} ({e.Guild.Id})");
-            _ = Task.Run(async () => GetDMs(e));
+            _ = Task.Run(async () => await GetDMs(e));
             return Task.CompletedTask;
         }
 
@@ -151,6 +151,8 @@ namespace PaimonBot.Services
             var membersFound = e.Guild.Members.Keys.Where(x => SharedData.ParaRemindedUsers.Keys.Contains(x));
             foreach (var memberID in membersFound)
             {
+                if (SharedData.ParaReminderUsersDMs.ContainsKey(memberID))
+                    continue;
                 var member = await e.Guild.GetMemberAsync(memberID);
                 try {
                     var DMChannel = await member.CreateDmChannelAsync().ConfigureAwait(false);
