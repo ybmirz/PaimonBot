@@ -163,7 +163,7 @@ namespace PaimonBot.Services
                         Log.Warning("Member {Id} was found in Remindlist and Guild, however DM channel was unable to be created. {ExceptionMsg}", memberID, ex.Message);
                     }
                     else
-                        Log.Error("This is Exception E {Exception} , Message: {E.Message} Stacktrace: {E.StackTrace}", e, e.Message, e.StackTrace);
+                        Log.Error("This is Exception E {Exception} , Message: {E.Message} Stacktrace: {E.StackTrace}", ex, ex.Message, ex.StackTrace);
                 }
             }
             Log.Information($"Cached {SharedData.ParaReminderUsersDMs.Count} DMs for Parametric Gadget Reminding.");
