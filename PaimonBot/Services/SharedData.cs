@@ -35,12 +35,7 @@ namespace PaimonBot.Services
         public static Dictionary<ulong, DiscordChannel> ParaReminderUsersDMs = new Dictionary<ulong, DiscordChannel>();
         public static Dictionary<ulong, DateTimeOffset> ParaRemindedUsers = new Dictionary<ulong, DateTimeOffset>();
         public static Timer GadgetTimer = new Timer();
-        #endregion SharedGadgetUsers
-
-        #region Reminders
-        public static Dictionary<ulong, Dictionary<string,Timer>> Reminders = new Dictionary<ulong, Dictionary<string, Timer>>();
-        public static int MaxReminder = 5;
-        #endregion Reminders
+        #endregion
     }
 
     /// <summary>

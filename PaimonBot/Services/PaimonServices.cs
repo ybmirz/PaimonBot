@@ -168,20 +168,6 @@ namespace PaimonBot.Services
             SharedData.currencyTimer.Remove(SharedData.currencyTimer.Find(x => x.DiscordId == e.DiscordId));
             Log.Information("Currency for User {Id} has capped. Timer Disposed.", e.DiscordId);
         }
-
-        public static async void ATimer_ReminderEndAsync(object sender, System.Timers.ElapsedEventArgs e, DiscordUser discordUser, string guid,DiscordChannel channel, string reason)
-        {
-            await channel.SendMessageAsync($"{discordUser.Mention}, you asked Paimon to remind you to `{reason}`. " + Emojis.HappyEmote).ConfigureAwait(false);
-            var userReminders = SharedData.Reminders[discordUser.Id];            
-            var userReminder = userReminders[guid]; // May throw an exception in the case GUID doesn't exist
-            userReminder.Stop();
-            userReminder.Dispose();
-            // Delete Cached Data
-            SharedData.Reminders[discordUser.Id].Remove(guid);
-            if (SharedData.Reminders[discordUser.Id].Count == 0)
-            { SharedData.Reminders.Remove(discordUser.Id); }
-            Log.Information($"Sucessfully reminded under Remind ID#{guid} for User {discordUser.Id} in Channel #{channel.Name} ({channel.Id})");
-        }
         
     }    
 }
