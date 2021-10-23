@@ -709,6 +709,7 @@ namespace PaimonBot.Commands
               .WithAuthor("PaimonBot", null, SharedData.logoURL)
               .WithColor(SharedData.defaultColour)
               .WithTitle($"{user.Username}#{user.Discriminator}'s Traveler Profile")
+              .WithImageUrl("attachment://acc.png")
               .WithThumbnail(user.AvatarUrl)
               .WithTimestamp(DateTime.UtcNow)
               .WithDescription(desc.ToString())              
