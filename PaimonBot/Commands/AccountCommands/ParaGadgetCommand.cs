@@ -59,7 +59,7 @@ namespace PaimonBot.Commands
                 updateTraveler.ParaGadgetRemind = false;
                 // Saves to the Traveler's database data.
                 SharedData.PaimonDB.ReplaceTraveler(updateTraveler);
-                await ctx.RespondAsync($"Succesfully recorded the use of Parametric Gadget! Please use `{SharedData.prefixes[0]}gadget` to check its data.");
+                await ctx.RespondAsync($"Succesfully recorded the use of Parametric Gadget! Please use `{SharedData.prefixes[0]}gadget` to check its data. If you'd like to be reminded when you can next use it, please use `{SharedData.prefixes[0]}gadget remind`.");
                 Log.Information("Succesfully recorded Traveler {Id}'s Gadget Next Use.", ctx.User.Id);
             }
             else
@@ -84,9 +84,9 @@ namespace PaimonBot.Commands
                     return;
                 }
                 var nextUse = (DateTimeOffset)traveler.ParaGadgetNextUse.ToUniversalTime();
-                if (SharedData.ParaRemindedUsers.ContainsKey(ctx.User.Id))
+                if (SharedData.ParaRemindedUsers.ContainsKey(ctx.User.Id) || traveler.ParaGadgetRemind)
                 {                    
-                    await PaimonServices.SendEmbedToChannelAsync(ctx.Channel, "Gadget Remind Error", $"It seems that you already will be reminded on your next Gadget use at {nextUse.ToUnixTimeSeconds()}. To disable, please use " +
+                    await PaimonServices.SendEmbedToChannelAsync(ctx.Channel, "Gadget Remind Error", $"It seems that you already will be reminded on your next Gadget use at <t:{nextUse.ToUnixTimeSeconds()}>. To disable, please use " +
                             $"`{SharedData.prefixes[0]}gadget unremind`. {Emojis.BlurpEmote}", TimeSpan.FromSeconds(6), ResponseType.Warning);                    
                     return;
                 }
@@ -101,7 +101,7 @@ namespace PaimonBot.Commands
                     SharedData.PaimonDB.UpdateTraveler(traveler, "ParaGadgetRemind", traveler.ParaGadgetRemind);
 
                     Log.Information("Gadget Remind for User {ID} has been added into the dict. RemindTime: {Time}", ctx.User.Id, nextUse);
-                    await ctx.RespondAsync($"{Emojis.HappyEmote} Gagdet Remind Succesful ").ConfigureAwait(false);
+                    await ctx.RespondAsync($"{Emojis.HappyEmote} Gagdet Remind Successful, Please keep your DMs open. Paimon will now remind you when you can next use your Parametric Gadget! `{SharedData.prefixes[0]}gadget` for more information.z").ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -130,7 +130,7 @@ namespace PaimonBot.Commands
             var traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", ctx.User.Id);
             if (traveler != null)
             {
-                if (SharedData.ParaRemindedUsers.ContainsKey(ctx.User.Id))
+                if (SharedData.ParaRemindedUsers.ContainsKey(ctx.User.Id) || traveler.ParaGadgetRemind)
                 {
                     // Removing from both lists
                     SharedData.ParaRemindedUsers.Remove(ctx.User.Id);
@@ -185,7 +185,12 @@ namespace PaimonBot.Commands
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"You used your Parametric Gadget on <t:{offset.ToUnixTimeSeconds()}>");
             sb.AppendLine($"You can next use your Parametric Gadget <t:{remindedTime.ToUnixTimeSeconds()}:R> on <t:{remindedTime.ToUnixTimeSeconds()}>");
-            sb.AppendLine($"Use `{SharedData.prefixes[0]}gadget remind` or `unremind` to be reminded or unreminded on when you can next use your gadget.");
+            sb.AppendLine();
+            if (traveler.ParaGadgetRemind)
+            {
+                sb.AppendLine("Paimon also **will remind** you when you can next use your gadget");
+            } else
+            { sb.AppendLine($"Use `{SharedData.prefixes[0]}gadget remind` or `unremind` to be reminded or unreminded on when you can next use your gadget."); }            
             sb.AppendLine($"You could also use `{SharedData.prefixes[0]}gadget delete` to delete/clear the data.");
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
