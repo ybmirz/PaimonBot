@@ -68,7 +68,8 @@ namespace PaimonBot.Commands
                 SharedData.resinTimers.Add(aTimer);
                 aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
                 Log.Information($"Resin Timer for {aTimer._discordID} just started!");
-                SharedData.PaimonDB.ReplaceTraveler(updateTraveler);
+                SharedData.PaimonDB.UpdateTraveler(traveler, "ResinAmount", updateTraveler.ResinAmount);
+                SharedData.PaimonDB.UpdateTraveler(traveler, "ResinUpdated", updateTraveler.ResinUpdatedTime);
                 await ctx.RespondAsync($"You now have **{updateTraveler.ResinAmount}** resin {Emojis.ResinEmote}. Please use `{SharedData.prefixes[0]}resin` to check your resin. {Emojis.HappyEmote}").ConfigureAwait(false);
             }
             else
