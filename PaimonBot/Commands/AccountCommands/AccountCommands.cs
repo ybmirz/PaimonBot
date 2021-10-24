@@ -23,17 +23,17 @@ namespace PaimonBot.Commands
     public class AccountCommands : BaseCommandModule
     {
         [GroupCommand]
-        [Description("Shows the Embed Dashboard consisting Traveler's Account Info.")]     
+        [Description("Shows the Embed Dashboard consisting Traveler's Account Info.")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Dashboard(CommandContext ctx)
         {
             var traveler = SharedData.PaimonDB.GetTravelerBy<ulong>("DiscordID", ctx.User.Id);
             if (traveler != null) // Found the Document
             {
-                var dashboardEmbed = TravelerDashboardEmbed(ctx.User, traveler);
-                var messageBuilder = new DiscordMessageBuilder().WithEmbed(dashboardEmbed.Build());
                 FileStream fs = new FileStream(AppDomain.CurrentDomain.BaseDirectory + "/Resources/Images/acc.png", FileMode.Open);
-                messageBuilder.WithFile(fs);                
+                var dashboardEmbed = TravelerDashboardEmbed(ctx.User, traveler).WithImageUrl("attachment://acc.png");
+                var messageBuilder = new DiscordMessageBuilder().WithEmbed(dashboardEmbed.Build());                
+                messageBuilder.WithFile(fs);
                 await ctx.RespondAsync(messageBuilder)
                         .ConfigureAwait(false);
                 fs.Close();
@@ -70,7 +70,7 @@ namespace PaimonBot.Commands
                 $"`Disclaimer: PaimonBot will only save information that you set, such as ResinAmount, WorldLevel, GenshinServer, RealmCurrency, AdeptalEnergy and RealmTrustRank." +
                 $" Your Discord ID will be saved to attribute the above data to you. To delete your profile, simply do {SharedData.prefixes[0]}account delete.`\n" +
                 $"Type `cancel` anywhere throughout this conversation to cancel account creation.";
-            await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);            
+            await ctx.Channel.SendMessageAsync(msg).ConfigureAwait(false);
             do
             {
                 var result = await interactive.WaitForMessageAsync(x => x.Author == ctx.User && x.Channel == ctx.Channel).ConfigureAwait(false);
@@ -82,7 +82,7 @@ namespace PaimonBot.Commands
                 if (inputBuffer.ToLower().Contains("cancel"))
                     break;
                 if (int.TryParse(inputBuffer, out currentResin))
-                { currentResin = int.Parse(inputBuffer); break;}
+                { currentResin = int.Parse(inputBuffer); break; }
                 if (currentResin == int.MinValue)
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get the resin amount from that, please input a number between `0-160`!").ConfigureAwait(false);
@@ -132,7 +132,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your World Level from that, please input a number between `0-8`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                   // await result.Result.DeleteAsync();
+                    // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     worldLevel = int.MinValue;
                 }
@@ -200,11 +200,11 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Realm Trust Rank from that, please input a number between `1-10`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                   // await result.Result.DeleteAsync();
+                    // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     RealmTrustRank = int.MinValue;
                 }
-            } while(RealmTrustRank == int.MinValue );
+            } while (RealmTrustRank == int.MinValue);
             if (inputBuffer.ToLower().Contains("cancel"))
                 return;
             #endregion RealmTrustRankAccCreate
@@ -230,7 +230,7 @@ namespace PaimonBot.Commands
                 {
                     var m = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Adeptal Energy from that, please only input your current adeptal energy amount!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                   // await result.Result.DeleteAsync();
+                    // await result.Result.DeleteAsync();
                     await m.DeleteAsync();
                     adeptalEnergy = int.MinValue;
                 }
@@ -265,7 +265,7 @@ namespace PaimonBot.Commands
                         var m = await ctx.Channel.SendMessageAsync($"Paimon caught you! That amount is above the Trust Rank Capacity that was set; Your trust rank is `{Traveler.RealmTrustRank}` " +
                             $"with a capacity of `{Traveler.RealmTrustRank.GetTrustRankCurrencyCap()}` Realm Currency or is a negative value! Please input a number below this!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                       // await result.Result.DeleteAsync();
+                        // await result.Result.DeleteAsync();
                         await m.DeleteAsync();
                     }
                 }
@@ -287,8 +287,8 @@ namespace PaimonBot.Commands
                 timer.StopAndDispose();
                 SharedData.resinTimers.Remove(timer);
                 Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
-            }           
-               
+            }
+
 
             if (SharedData.PaimonDB.TravelerExists(ctx.User.Id))
             { SharedData.PaimonDB.ReplaceTraveler(Traveler); }
@@ -296,7 +296,7 @@ namespace PaimonBot.Commands
             { SharedData.PaimonDB.InsertTraveler(Traveler); }
 
             // Sets a new Timer to start.
-            var aTimer = new ResinTimer(ctx.User.Id);            
+            var aTimer = new ResinTimer(ctx.User.Id);
             aTimer.Start();
             aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
             SharedData.resinTimers.Add(aTimer);
@@ -313,13 +313,13 @@ namespace PaimonBot.Commands
         [Command("create")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         [Description("Creates a new Traveler Account, if already exists, will overwrite.")]
-        public async Task Create(CommandContext ctx, int currentResin, int RealmCurrency, string GenshinServer, int AdeptalEnergy,int RealmTrustRank,int WorldLevel)
+        public async Task Create(CommandContext ctx, int currentResin, int RealmCurrency, string GenshinServer, int AdeptalEnergy, int RealmTrustRank, int WorldLevel)
         {
             if (Enum.TryParse(GenshinServer, out TeyvatServer teyvatServer))
             {
                 TeyvatServer teyvatServer1 = teyvatServer;
                 if (Enum.IsDefined(typeof(WorldLevel), WorldLevel))
-                {                    
+                {
                     WorldLevel worldLevel = (WorldLevel)WorldLevel;
                     if (Enum.IsDefined(typeof(RealmTrustRank), RealmTrustRank))
                     {
@@ -334,7 +334,7 @@ namespace PaimonBot.Commands
                             var timer = SharedData.resinTimers.Find(timer => timer._discordID == ctx.User.Id);
                             timer.StopAndDispose();
                             SharedData.resinTimers.Remove(timer);
-                            Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");  
+                            Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
                         }
 
 
@@ -361,7 +361,7 @@ namespace PaimonBot.Commands
                         { SharedData.PaimonDB.ReplaceTraveler(traveler); Log.Information("Traveler {User} had their data updated!", ctx.User); }
 
                         // Starts a new ResinTimer 
-                        var aTimer = new ResinTimer(ctx.User.Id);   
+                        var aTimer = new ResinTimer(ctx.User.Id);
                         aTimer.Start();
                         SharedData.resinTimers.Add(aTimer);
                         aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
@@ -384,10 +384,10 @@ namespace PaimonBot.Commands
         #region AccountDelete
         [Command("delete")]
         [Description("Deletes Traveler that called this command's Account")]
-        [Cooldown(1,5, CooldownBucketType.User)]
+        [Cooldown(1, 5, CooldownBucketType.User)]
         public async Task Delete(CommandContext ctx)
         {
-            var Traveler = SharedData.PaimonDB.GetTravelerBy<ulong>("DiscordID", ctx.User.Id);           
+            var Traveler = SharedData.PaimonDB.GetTravelerBy<ulong>("DiscordID", ctx.User.Id);
             if (Traveler != null)
             {
                 var interactive = ctx.Client.GetInteractivity();
@@ -410,9 +410,9 @@ namespace PaimonBot.Commands
                         await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
                         SharedData.PaimonDB.DeleteTraveler(Traveler);
                         await msg.DeleteAsync().ConfigureAwait(false);
-                        await result.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder(){ IsEphemeral = true, Content = "Your Account has been successfully deleted! Thanks for using PaimonBot!" });
+                        await result.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder() { IsEphemeral = true, Content = "Your Account has been successfully deleted! Thanks for using PaimonBot!" });
                         break;
-                    case "acc_delete_cancel":                        
+                    case "acc_delete_cancel":
                         await msg.DeleteAsync().ConfigureAwait(false);
                         break;
                 }
@@ -424,7 +424,7 @@ namespace PaimonBot.Commands
 
         #region AccountUpdate
         [Command("update")]
-        [Description("Updates one of a Traveler's data value. FieldName options: `resin` `currency` `server` `worldlevel` `trustrank`")]
+        [Description("Updates one of a Traveler's data value. FieldName options: `resin` `currency` `server` `worldlevel` `trustrank` `adeptalenergy`")]
         [Cooldown(1, 3, CooldownBucketType.User)]
         public async Task Update(CommandContext ctx, [RemainingText] string FieldName)
         {
@@ -433,15 +433,15 @@ namespace PaimonBot.Commands
             if (SharedData.PaimonDB.TravelerExists(ctx.User.Id))
             {
                 var Traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", ctx.User.Id);
-                FieldName = FieldName.Trim().ToLower();                
+                FieldName = FieldName.Trim().ToLower();
                 switch (FieldName)
                 {
                     case string a when a.Contains("resin"):
-                        if (!await UpdateResin(ctx, Traveler).ConfigureAwait(false))                        
+                        if (!await UpdateResin(ctx, Traveler).ConfigureAwait(false))
                             return;
                         await ctx.RespondAsync("Your resin has been successfully updated!").ConfigureAwait(false);
                         break;
-                   case string a when a.Contains("currency"):
+                    case string a when a.Contains("currency"):
                         if (!await UpdateCurrency(ctx, Traveler).ConfigureAwait(false))
                             return;
                         await ctx.RespondAsync("Your currency has been successfully updated!").ConfigureAwait(false);
@@ -454,20 +454,59 @@ namespace PaimonBot.Commands
                     case string a when a.Contains("worldlevel"):
                         if (!await UpdateWL(ctx, Traveler).ConfigureAwait(false))
                             return;
-                        await ctx.RespondAsync("Your World Level has been succesfully updated!").ConfigureAwait(false);
+                        await ctx.RespondAsync("Your World Level has been successfully updated!").ConfigureAwait(false);
                         break;
                     case string a when a.Contains("trustrank"):
                         if (!await UpdateTrustRank(ctx, Traveler).ConfigureAwait(false))
                             return;
-                        await ctx.RespondAsync("Your Trust Rank has been succesfully updated!").ConfigureAwait(false);
+                        await ctx.RespondAsync("Your Trust Rank has been successfully updated!").ConfigureAwait(false);
+                        break;
+                    case string a when a.Contains("adeptalenergy"):
+                        if (!await UpdateAdeptal(ctx, Traveler).ConfigureAwait(false))
+                            return;
+                        await ctx.RespondAsync("Your Adeptal Energy has been successfully updated!").ConfigureAwait(false);
                         break;
                     default:
                         await PaimonServices.SendRespondAsync(ctx, "Paimon seem to not understand what you would like to update there. Please make sure you have one of the following phrases: `resin` `currency` `server` `worldlevel` `trustrank`", TimeSpan.FromSeconds(5));
                         break;
                 }
-            } 
+            }
             else
                 await PaimonServices.SendRespondAsync(ctx, $"Paimon can't find your traveler data, are you sure you have an account with me? Use `{SharedData.prefixes[0]}account create` to create one!", TimeSpan.FromSeconds(5));
+        }
+
+        private async Task<bool> UpdateAdeptal(CommandContext ctx, Traveler traveler)
+        {
+            var inputBuffer = string.Empty;
+            var interactive = ctx.Client.GetInteractivity();
+            var m = await ctx.Channel.SendMessageAsync("Please enter your new adeptal energy amount below (an integer):\nEnter `cancel` to cancel the operation.").ConfigureAwait(false);
+            int adeptalEnergy;
+            do
+            {
+                var result = await interactive.WaitForMessageAsync(x => x.Author == ctx.User && x.Channel == ctx.Channel).ConfigureAwait(false);
+                if (result.TimedOut)
+                { await ctx.Channel.SendMessageAsync(SharedData.TimedOutString).ConfigureAwait(false); return false; }
+                inputBuffer = result.Result.Content;
+                if (inputBuffer.ToLower().Contains("cancel"))
+                    break;
+                if (int.TryParse(inputBuffer, out adeptalEnergy))
+                {
+                    adeptalEnergy = int.Parse(inputBuffer);
+                    traveler.AdeptalEnergy = adeptalEnergy;
+                }
+                else
+                {
+                    var msg = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Adeptal Energy from that, please only input your current adeptal energy amount!").ConfigureAwait(false);
+                    await Task.Delay(3000);
+                    // await result.Result.DeleteAsync();
+                    await msg.DeleteAsync();
+                    adeptalEnergy = int.MinValue;
+                }
+            } while (adeptalEnergy == int.MinValue);
+            if (inputBuffer.ToLower().Contains("cancel"))
+                return false;
+            SharedData.PaimonDB.UpdateTraveler(traveler, "AdeptalEnergy", traveler.AdeptalEnergy);
+            return true;
         }
 
         private async Task<bool> UpdateResin(CommandContext ctx, Traveler traveler)
@@ -492,7 +531,7 @@ namespace PaimonBot.Commands
                 {
                     var warn = await ctx.Channel.SendMessageAsync("Paimon can't seem to get the resin amount from that, please input a number between `0-160`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                    // await result.Result.DeleteAsync();
                     await warn.DeleteAsync();
                 }
             } while (!int.TryParse(inputBuffer, out int i));
@@ -504,11 +543,10 @@ namespace PaimonBot.Commands
             if (traveler.ResinAmount > 160)
                 traveler.ResinAmount = 160;
             if (traveler.ResinAmount < 0)
-                traveler.ResinAmount = 0;
-            SharedData.PaimonDB.ReplaceTraveler(traveler);
+                traveler.ResinAmount = 0;            
             // Doesn't work :<
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "ResinAmount", traveler.ResinAmount);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "ResinUpdated", DateTime.UtcNow);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "ResinAmount", traveler.ResinAmount);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "ResinUpdated", DateTime.UtcNow);
             return true;
         }
 
@@ -539,7 +577,7 @@ namespace PaimonBot.Commands
                         var s = await ctx.Channel.SendMessageAsync($"Paimon caught you! That amount is above the Trust Rank Capacity that was set; Your trust rank is `{traveler.RealmTrustRank}` " +
                             $"with a capacity of `{traveler.RealmTrustRank.GetTrustRankCurrencyCap()}` Realm Currency. Please input a number below this!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                        // await result.Result.DeleteAsync();
                         await s.DeleteAsync();
                     }
                 }
@@ -547,7 +585,7 @@ namespace PaimonBot.Commands
                 {
                     var s = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Currency Amount from that, please input a number!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                  //  await result.Result.DeleteAsync();
                     await s.DeleteAsync();
                 }
             } while (realmCurrency == int.MinValue || realmCurrency > traveler.RealmTrustRank.GetTrustRankCurrencyCap());
@@ -556,9 +594,9 @@ namespace PaimonBot.Commands
                 await m.DeleteAsync().ConfigureAwait(false);
                 return false;
             }
-            SharedData.PaimonDB.ReplaceTraveler(traveler);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "RealmCurrency", traveler.RealmCurrency);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "RealmCurrencyUpdated", DateTime.UtcNow);
+            //SharedData.PaimonDB.ReplaceTraveler(traveler);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "RealmCurrency", traveler.RealmCurrency);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "RealmCurrencyUpdated", DateTime.UtcNow);
             return true;
         }
 
@@ -583,7 +621,7 @@ namespace PaimonBot.Commands
                 {
                     var s = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Genshin Server from that, please try again!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                   // await result.Result.DeleteAsync();
                     await s.DeleteAsync();
                     GenshinServer = string.Empty;
                 }
@@ -593,8 +631,8 @@ namespace PaimonBot.Commands
                 await m.DeleteAsync().ConfigureAwait(false);
                 return false;
             }
-            SharedData.PaimonDB.ReplaceTraveler(traveler);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "TeyvatServer", traveler.GenshinServer);
+            //SharedData.PaimonDB.ReplaceTraveler(traveler);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "TeyvatServer", traveler.GenshinServer);
             return true;
         }
 
@@ -621,7 +659,7 @@ namespace PaimonBot.Commands
                     {
                         var s = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your World Level from that, please input a number between `0-8`!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                       // await result.Result.DeleteAsync();
                         await s.DeleteAsync();
                         worldLevel = int.MinValue;
                     }
@@ -641,8 +679,8 @@ namespace PaimonBot.Commands
                 await m.DeleteAsync().ConfigureAwait(false);
                 return false;
             }
-            SharedData.PaimonDB.ReplaceTraveler(traveler);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "TeyvatLevel", traveler.WorldLevel);
+            //SharedData.PaimonDB.ReplaceTraveler(traveler);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "TeyvatLevel", traveler.WorldLevel);
             return true;
         }
 
@@ -669,7 +707,7 @@ namespace PaimonBot.Commands
                     {
                         var s = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Realm Trust Rank from that, please input a number between `1-10`!").ConfigureAwait(false);
                         await Task.Delay(3000);
-                        await result.Result.DeleteAsync();
+                       // await result.Result.DeleteAsync();
                         await s.DeleteAsync();
                         RealmTrustRank = int.MinValue;
                     }
@@ -678,7 +716,7 @@ namespace PaimonBot.Commands
                 {
                     var s = await ctx.Channel.SendMessageAsync("Paimon can't seem to get your Realm Trust Rank from that, please input a number between `1-10`!").ConfigureAwait(false);
                     await Task.Delay(3000);
-                    await result.Result.DeleteAsync();
+                  //  await result.Result.DeleteAsync();
                     await s.DeleteAsync();
                     RealmTrustRank = int.MinValue;
                 }
@@ -688,8 +726,8 @@ namespace PaimonBot.Commands
                 await m.DeleteAsync().ConfigureAwait(false);
                 return false;
             }
-            SharedData.PaimonDB.ReplaceTraveler(traveler);
-            //SharedData.PaimonDB.UpdateTraveler(traveler, "RealmTrustRank", traveler.RealmTrustRank);
+            //SharedData.PaimonDB.ReplaceTraveler(traveler);
+            SharedData.PaimonDB.UpdateTraveler(traveler, "RealmTrustRank", traveler.RealmTrustRank);
             return true;
         }
         #endregion AccountUpdate
@@ -708,8 +746,7 @@ namespace PaimonBot.Commands
             var embed = new DiscordEmbedBuilder()
               .WithAuthor("PaimonBot", null, SharedData.logoURL)
               .WithColor(SharedData.defaultColour)
-              .WithTitle($"{user.Username}#{user.Discriminator}'s Traveler Profile")
-              .WithImageUrl("attachment://acc.png")
+              .WithTitle($"{user.Username}#{user.Discriminator}'s Traveler Profile")              
               .WithThumbnail(user.AvatarUrl)
               .WithTimestamp(DateTime.UtcNow)
               .WithDescription(desc.ToString())              
