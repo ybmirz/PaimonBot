@@ -40,7 +40,12 @@ namespace PaimonBot.Services
         #region Reminders
         public static Dictionary<ulong, Dictionary<string,Timer>> Reminders = new Dictionary<ulong, Dictionary<string, Timer>>();
         public static int MaxReminder = 5;
+        public static Dictionary<string, DateTimeOffset> ReminderEndTimes = new Dictionary<string, DateTimeOffset>();
         #endregion Reminders
+
+        #region GlobalRandomization
+        public static Random Random = new Random();
+        #endregion GlobalRandomization
     }
 
     /// <summary>

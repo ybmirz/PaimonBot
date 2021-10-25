@@ -65,5 +65,15 @@ namespace PaimonBot.Commands
 
             await ctx.RespondAsync(embed.Build()).ConfigureAwait(false);
         }
+
+        [Command("choose"), Aliases("pick")]
+        [Description("Lets Paimon choose between options as the string arguments, seperated using spaces.")]
+        [Cooldown(1, 3, CooldownBucketType.User)]
+        [Category(CategoryName.Misc)]
+        public async Task choose(CommandContext ctx, [RemainingText] string options)
+        {
+            var inputs = options.Split(" ");
+            await ctx.RespondAsync($"Paimon chose **{inputs[SharedData.Random.Next(0, inputs.Length)]}**.").ConfigureAwait(false);
+        }
     }
 }
