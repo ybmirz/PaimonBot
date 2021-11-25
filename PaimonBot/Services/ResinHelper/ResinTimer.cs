@@ -127,6 +127,18 @@ namespace PaimonBot.Services.ResinHelper
             _timer.Dispose();
         }
 
+        /// <summary>
+        /// Method to return the private Dm Channel Instance of Resin Timer, will return null if resin remind is disabled
+        /// </summary>
+        /// <returns>Resin Timer's Dm Channel</returns>
+        public DiscordChannel GetDmChannelInstance()
+        {
+            if (!_remind)
+                return null;
+
+            return _notifyChannel;
+        }
+
         protected virtual void OnResinCapped(ResinCappedEventArgs e)
         {
             EventHandler<ResinCappedEventArgs> handler = ResinCapped;

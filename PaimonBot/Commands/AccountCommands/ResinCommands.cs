@@ -42,7 +42,8 @@ namespace PaimonBot.Commands
         public async Task ResinSet(CommandContext ctx, int amount)
         {
             var traveler = SharedData.PaimonDB.GetTravelerBy("DiscordID", ctx.User.Id);
-
+            int prevRemindAmnt = 0; // Just in the case a resin remind was previous active      
+            DiscordChannel dmChannelBuffer = null;
             if (amount > 160)   
                 amount = 160;
             else if (amount < 0)
@@ -50,8 +51,14 @@ namespace PaimonBot.Commands
 
             // Removes an already existing timer
             if (SharedData.resinTimers.Exists(timer => timer._discordID == ctx.User.Id))
-            {
+            { 
                 var timer = SharedData.resinTimers.Find(timer => timer._discordID == ctx.User.Id);
+                // Previous Resin Remind check
+                if (timer._remind)
+                {
+                    prevRemindAmnt = timer._remindAt;
+                    dmChannelBuffer = timer.GetDmChannelInstance();
+                }
                 timer.StopAndDispose();
                 SharedData.resinTimers.Remove(timer);
                 Log.Information($"Previous Resin timer for User {ctx.User.Id} has been removed.");
@@ -64,6 +71,10 @@ namespace PaimonBot.Commands
                 updateTraveler.ResinUpdatedTime = DateTime.UtcNow;
                 // Starts a new ResinTimer
                 var aTimer = new ResinTimer(ctx.User.Id);
+                // If there was a previous remind
+                if (prevRemindAmnt > 0 && dmChannelBuffer != null) // Condition can only mean that there was a resin remind, unless im dumb af
+                    aTimer.EnableRemind(prevRemindAmnt, dmChannelBuffer);
+              
                 aTimer.Start();
                 SharedData.resinTimers.Add(aTimer);
                 aTimer.ResinCapped += PaimonServices.ATimer_ResinCapped;
